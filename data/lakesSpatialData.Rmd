@@ -9,6 +9,16 @@ Spatial Data
 * get the centroids and convert to spdf with reachcode (WBRCHCODE) as an attribute. output= SpatialPointsDataframe "lakes" with geographic coordinates
 * save "lakes" and "lakesPt"
 
+************
+The following code will open the formatted text version of the Rmarkdown file in a browser:
+************
+    browseURL('https://github.com/willbmisled/ECsparrow/blob/master/data/lakesSpatialData.md')
+************
+The data can be loaded into R with the following code:
+************
+  #Get the Data
+    load(url('https://raw.github.com/willbmisled/ECsparrow/master/data/lakesSpatialData.rda')
+
 
 
 ```{r loadPkgs, include=FALSE, echo=FALSE, cache=FALSE}
@@ -30,6 +40,9 @@ Spatial Data
 
 
 ```{r lakes, include=FALSE, echo=FALSE, cache=FALSE}
+#set working directory
+  setwd('../data')
+
 #Get the NHDplus shapefiles for HUC regions 01,02, and 03
   HUC01<-readShapePoly('C:/Bryan/EPA/Data/GIS/NHDPlus/NHDPlus01/hydrography/nhdwaterbody.shp',IDvar="COMID", 
                       proj4string=CRS("+proj=longlat +datum=NAD83 +no_defs +ellps=GRS80 +towgs84=0,0,06"))
@@ -77,6 +90,6 @@ Spatial Data
   lakesPt<-SpatialPointsDataFrame(coords, data)  #convert to spdf
 
 #save the data
-  save(lakes,lakesPt,file='../data/lakesSpatialData.rda')
+  save(lakes,lakesPt,file='../lakesSpatialData.rda')
 ```
 
