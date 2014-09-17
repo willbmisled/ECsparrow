@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=9" >
+
+<title>East Coast Sparrow Model Notes</title>
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 12px;
+   margin: 8px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 { 
+   font-size:2.2em; 
+}
+
+h2 { 
+   font-size:1.8em; 
+}
+
+h3 { 
+   font-size:1.4em; 
+}
+
+h4 { 
+   font-size:1.0em; 
+}
+
+h5 { 
+   font-size:0.9em; 
+}
+
+h6 { 
+   font-size:0.8em; 
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre {	
+   margin-top: 0;
+   max-width: 95%;
+   border: 1px solid #ccc;
+   white-space: pre-wrap;
+}
+
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code.r, code.cpp {
+   background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * { 
+      background: transparent !important; 
+      color: black !important; 
+      filter:none !important; 
+      -ms-filter: none !important; 
+   }
+
+   body { 
+      font-size:12pt; 
+      max-width:100%; 
+   }
+       
+   a, a:visited { 
+      text-decoration: underline; 
+   }
+
+   hr { 
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote { 
+      padding-right: 1em; 
+      page-break-inside: avoid; 
+   }
+
+   tr, img { 
+      page-break-inside: avoid; 
+   }
+
+   img { 
+      max-width: 100% !important; 
+   }
+
+   @page :left { 
+      margin: 15mm 20mm 15mm 10mm; 
+   }
+     
+   @page :right { 
+      margin: 15mm 10mm 15mm 20mm; 
+   }
+
+   p, h2, h3 { 
+      orphans: 3; widows: 3; 
+   }
+
+   h2, h3 { 
+      page-break-after: avoid; 
+   }
+}
+
+</style>
+
+
+
+
+
+</head>
+
+<body>
+<h1>East Coast Sparrow Model Notes</h1>
+
+<h2>Data</h2>
+
+<ul>
+<li>Data received from Ann Hoos in September 2014 as 4 sas files and save to C:\Bryan\EPA\Data\Sparrow\EastCoast\Predictions20140911
+
+<ul>
+<li>mrb1_massbalancereservoirs_2002.sas7bdat</li>
+<li>mrb1_massbalancereservoirs_2002.sas7bdat</li>
+<li>mrb1_predict_tn_2002.sas7bdat</li>
+<li>mrb1_predict_tn_2002.sas7bdat</li>
+</ul></li>
+<li>These data were added to a new access database (EC2014.mdb) and the following tables were added
+
+<ul>
+<li>MRB1_NHDWaterbody (WaterbodyDatabse.mdb): the MRB1 NHDplus waterbodies showing the COMIDs and Reachcodes.</li>
+<li>tblJoinCOMID_WBID (WaterbodyDatabse.mdb): a table to match waterbody COMIDs to the Lake WBIDs</li>
+<li>tblJoinFlowline_WBID_InOut (MRB1.mdb): this table links the flowline COMIDs to the WBIDs and shows whether the flowline is an input or output to the lake or an internal reach.</li>
+<li>tblWBID_SParrowLoadDSS (MRB1.mdb): table with the Sparrow loads and flow I calculated from the DSS data.</li>
+</ul></li>
+</ul>
+
+<h2>Data Definintions for TN2002 and TN2020 predictions</h2>
+
+<p><strong>Note: some fields differ between 2002 and 2020.  See comments.</strong></p>
+
+<table><thead>
+<tr>
+<th><strong>Name</strong></th>
+<th><strong>Label</strong></th>
+<th><strong>Comment</strong></th>
+</tr>
+</thead><tbody>
+<tr>
+<td>Name</td>
+<td>Label</td>
+<td>Comment</td>
+</tr>
+<tr>
+<td>comid</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>reachcode_comb</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>MAFLOWU</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>EstuaryGroup</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>EstuaryCode</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>NOAA_targetonly</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>ReachTOT</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>ReachType</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>WBRchCd</td>
+<td>Unique identifier for a reservoir or lake,  from nhdwaterbody dbf file Aug 2011</td>
+<td></td>
+</tr>
+<tr>
+<td>tot_area</td>
+<td>Upstream Drainage Area (km2)</td>
+<td></td>
+</tr>
+<tr>
+<td>inc_area</td>
+<td>Incremental Drainage Area (km2)</td>
+<td></td>
+</tr>
+<tr>
+<td>arcid</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>fnode</td>
+<td>Upstream Reach Node Identifier</td>
+<td></td>
+</tr>
+<tr>
+<td>tnode</td>
+<td>Downstream Reach Node Identifier</td>
+<td></td>
+</tr>
+<tr>
+<td>hydseq</td>
+<td>SPARROW Reach Hydrologic Sequencing Code</td>
+<td></td>
+</tr>
+<tr>
+<td>frac</td>
+<td>Fraction Upstream Flux Diverted to Reach</td>
+<td></td>
+</tr>
+<tr>
+<td>iftran</td>
+<td>If Reach Transmits Flux (1=yes, 0=no)</td>
+<td></td>
+</tr>
+<tr>
+<td>target</td>
+<td>Destination Reach for Delivery (0/1)</td>
+<td></td>
+</tr>
+<tr>
+<td>ls_weight</td>
+<td>Least-Squares Weight</td>
+<td></td>
+</tr>
+<tr>
+<td>STAID</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>DEPVAR</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>PLOAD_TOTAL</td>
+<td>Total Flux (kg/yr)</td>
+<td></td>
+</tr>
+<tr>
+<td>PLOAD_PT_MUN_SMJ</td>
+<td>PT_MUN_SMJ Flux (kg/yr)</td>
+<td></td>
+</tr>
+<tr>
+<td>PLOAD_PT_MUN_CB</td>
+<td>PT_MUN_CB Flux (kg/yr)</td>
+<td></td>
+</tr>
+<tr>
+<td>PLOAD_PT_MUN_NWENG</td>
+<td>PT_MUN_NWENG Flux (kg/yr)</td>
+<td></td>
+</tr>
+<tr>
+<td>PLOAD_PT_MUN_DELHUD</td>
+<td>PT_MUN_DELHUD Flux (kg/yr)</td>
+<td></td>
+</tr>
+<tr>
+<td>PLOAD_CMAQ2020KG</td>
+<td>CMAQ2020KG Flux (kg/yr)</td>
+<td>Only TN2020</td>
+</tr>
+<tr>
+<td>PLOAD_CMAQ2002KG</td>
+<td>CMAQ2002KG Flux (kg/yr)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>PLOAD_DEP_ANIMALUNC_KGNI</td>
+<td>DEP_ANIMALUNC_KGNI Flux (kg/yr)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>PLOAD_DEP_ANIMALCON_KGNI</td>
+<td>DEP_ANIMALCON_KGNI Flux (kg/yr)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>PLOAD_DEP_FERT_KGNI</td>
+<td>DEP_FERT_KGNI Flux (kg/yr)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>PLOAD_DEP_INDUSELEC_KGNI</td>
+<td>DEP_INDUSELEC_KGNI Flux (kg/yr)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>PLOAD_DEP_INDUSOTH_KGNI</td>
+<td>DEP_INDUSOTH_KGNI Flux (kg/yr)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>PLOAD_DEP_VEHICLE_KGNI</td>
+<td>DEP_VEHICLE_KGNI Flux (kg/yr)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>PLOAD_DEP_BIOFIRE_KGNI</td>
+<td>DEP_BIOFIRE_KGNI Flux (kg/yr)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>PLOAD_DEP_INTL_KGNI</td>
+<td>DEP_INTL_KGNI Flux (kg/yr)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>PLOAD_DEP_AREA_KGNI</td>
+<td>DEP_AREA_KGNI Flux (kg/yr)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>PLOAD_URBLAND_SN</td>
+<td>URBLAND_SN Flux (kg/yr)</td>
+<td></td>
+</tr>
+<tr>
+<td>PLOAD_FERTROTATION</td>
+<td>FERTROTATION Flux (kg/yr)</td>
+<td></td>
+</tr>
+<tr>
+<td>PLOAD_FERT_OTHER</td>
+<td>FERT_OTHER Flux (kg/yr)</td>
+<td></td>
+</tr>
+<tr>
+<td>PLOAD_MANUREALL</td>
+<td>MANUREALL Flux (kg/yr)</td>
+<td></td>
+</tr>
+<tr>
+<td>PLOAD_ND_TOTAL</td>
+<td>Total Non-Decayed (ND) Flux (kg/yr)</td>
+<td></td>
+</tr>
+<tr>
+<td>PLOAD_ND_PT_MUN_SMJ</td>
+<td>PT_MUN_SMJ Non-Decayed (ND) Flux (kg/yr)</td>
+<td></td>
+</tr>
+<tr>
+<td>PLOAD_ND_PT_MUN_CB</td>
+<td>PT_MUN_CB Non-Decayed (ND) Flux (kg/yr)</td>
+<td></td>
+</tr>
+<tr>
+<td>PLOAD_ND_PT_MUN_NWENG</td>
+<td>PT_MUN_NWENG Non-Decayed (ND) Flux (kg/yr)</td>
+<td></td>
+</tr>
+<tr>
+<td>PLOAD_ND_PT_MUN_DELHUD</td>
+<td>PT_MUN_DELHUD Non-Decayed (ND) Flux (kg/yr)</td>
+<td></td>
+</tr>
+<tr>
+<td>PLOAD_ND_CMAQ2020KG</td>
+<td>CMAQ2020KG Non-Decayed (ND) Flux (kg/yr)</td>
+<td>Only TN2020</td>
+</tr>
+<tr>
+<td>PLOAD_ND_CMAQ2002KG</td>
+<td>CMAQ2002KG Non-Decayed (ND) Flux (kg/yr)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>PLOAD_ND_DEP_ANIMALUNC_KGNI</td>
+<td>DEP_ANIMALUNC_KGNI Non-Decayed (ND) Flux (kg/yr)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>PLOAD_ND_DEP_ANIMALCON_KGNI</td>
+<td>DEP_ANIMALCON_KGNI Non-Decayed (ND) Flux (kg/yr)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>PLOAD_ND_DEP_FERT_KGNI</td>
+<td>DEP_FERT_KGNI Non-Decayed (ND) Flux (kg/yr)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>PLOAD_ND_DEP_INDUSELEC_KGNI</td>
+<td>DEP_INDUSELEC_KGNI Non-Decayed (ND) Flux (kg/yr)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>PLOAD_ND_DEP_INDUSOTH_KGNI</td>
+<td>DEP_INDUSOTH_KGNI Non-Decayed (ND) Flux (kg/yr)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>PLOAD_ND_DEP_VEHICLE_KGNI</td>
+<td>DEP_VEHICLE_KGNI Non-Decayed (ND) Flux (kg/yr)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>PLOAD_ND_DEP_BIOFIRE_KGNI</td>
+<td>DEP_BIOFIRE_KGNI Non-Decayed (ND) Flux (kg/yr)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>PLOAD_ND_DEP_INTL_KGNI</td>
+<td>DEP_INTL_KGNI Non-Decayed (ND) Flux (kg/yr)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>PLOAD_ND_DEP_AREA_KGNI</td>
+<td>DEP_AREA_KGNI Non-Decayed (ND) Flux (kg/yr)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>PLOAD_ND_URBLAND_SN</td>
+<td>URBLAND_SN Non-Decayed (ND) Flux (kg/yr)</td>
+<td></td>
+</tr>
+<tr>
+<td>PLOAD_ND_FERTROTATION</td>
+<td>FERTROTATION Non-Decayed (ND) Flux (kg/yr)</td>
+<td></td>
+</tr>
+<tr>
+<td>PLOAD_ND_FERT_OTHER</td>
+<td>FERT_OTHER Non-Decayed (ND) Flux (kg/yr)</td>
+<td></td>
+</tr>
+<tr>
+<td>PLOAD_ND_MANUREALL</td>
+<td>MANUREALL Non-Decayed (ND) Flux (kg/yr)</td>
+<td></td>
+</tr>
+<tr>
+<td>PLOAD_INC_TOTAL</td>
+<td>Total Incremental (Inc) Flux (kg/yr)</td>
+<td></td>
+</tr>
+<tr>
+<td>PLOAD_INC_PT_MUN_SMJ</td>
+<td>PT_MUN_SMJ Incremenatal Flux (kg/yr)</td>
+<td></td>
+</tr>
+<tr>
+<td>PLOAD_INC_PT_MUN_CB</td>
+<td>PT_MUN_CB Incremenatal Flux (kg/yr)</td>
+<td></td>
+</tr>
+<tr>
+<td>PLOAD_INC_PT_MUN_NWENG</td>
+<td>PT_MUN_NWENG Incremenatal Flux (kg/yr)</td>
+<td></td>
+</tr>
+<tr>
+<td>PLOAD_INC_PT_MUN_DELHUD</td>
+<td>PT_MUN_DELHUD Incremenatal Flux (kg/yr)</td>
+<td></td>
+</tr>
+<tr>
+<td>PLOAD_INC_CMAQ2020KG</td>
+<td>CMAQ2020KG Incremenatal Flux (kg/yr)</td>
+<td>Only TN2020</td>
+</tr>
+<tr>
+<td>PLOAD_INC_CMAQ2002KG</td>
+<td>CMAQ2002KG Incremenatal Flux (kg/yr)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>PLOAD_INC_DEP_ANIMALUNC_KGNI</td>
+<td>DEP_ANIMALUNC_KGNI Incremenatal Flux (kg/yr)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>PLOAD_INC_DEP_ANIMALCON_KGNI</td>
+<td>DEP_ANIMALCON_KGNI Incremenatal Flux (kg/yr)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>PLOAD_INC_DEP_FERT_KGNI</td>
+<td>DEP_FERT_KGNI Incremenatal Flux (kg/yr)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>PLOAD_INC_DEP_INDUSELEC_KGNI</td>
+<td>DEP_INDUSELEC_KGNI Incremenatal Flux (kg/yr)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>PLOAD_INC_DEP_INDUSOTH_KGNI</td>
+<td>DEP_INDUSOTH_KGNI Incremenatal Flux (kg/yr)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>PLOAD_INC_DEP_VEHICLE_KGNI</td>
+<td>DEP_VEHICLE_KGNI Incremenatal Flux (kg/yr)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>PLOAD_INC_DEP_BIOFIRE_KGNI</td>
+<td>DEP_BIOFIRE_KGNI Incremenatal Flux (kg/yr)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>PLOAD_INC_DEP_INTL_KGNI</td>
+<td>DEP_INTL_KGNI Incremenatal Flux (kg/yr)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>PLOAD_INC_DEP_AREA_KGNI</td>
+<td>DEP_AREA_KGNI Incremenatal Flux (kg/yr)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>PLOAD_INC_URBLAND_SN</td>
+<td>URBLAND_SN Incremenatal Flux (kg/yr)</td>
+<td></td>
+</tr>
+<tr>
+<td>PLOAD_INC_FERTROTATION</td>
+<td>FERTROTATION Incremenatal Flux (kg/yr)</td>
+<td></td>
+</tr>
+<tr>
+<td>PLOAD_INC_FERT_OTHER</td>
+<td>FERT_OTHER Incremenatal Flux (kg/yr)</td>
+<td></td>
+</tr>
+<tr>
+<td>PLOAD_INC_MANUREALL</td>
+<td>MANUREALL Incremenatal Flux (kg/yr)</td>
+<td></td>
+</tr>
+<tr>
+<td>RES_DECAY</td>
+<td>Flux Decayed in Reservoir (kg/yr)</td>
+<td></td>
+</tr>
+<tr>
+<td>DEL_FRAC</td>
+<td>Share of Total Flux Delivered</td>
+<td></td>
+</tr>
+<tr>
+<td>total_yield</td>
+<td>Total Upstream Yield (kg/ha/yr)</td>
+<td></td>
+</tr>
+<tr>
+<td>inc_total_yield</td>
+<td>Total Incremental Yield (kg/ha/yr)</td>
+<td></td>
+</tr>
+<tr>
+<td>concentration</td>
+<td>Mean Flow-Weighted Concentration (mg/L)</td>
+<td></td>
+</tr>
+<tr>
+<td>map_del_frac</td>
+<td>Reach Flux Share Delivered (%)</td>
+<td></td>
+</tr>
+<tr>
+<td>sh_PT_MUN_SMJ</td>
+<td>Share of Inc Flux from PT_MUN_SMJ (%)</td>
+<td></td>
+</tr>
+<tr>
+<td>sh_PT_MUN_CB</td>
+<td>Share of Inc Flux from PT_MUN_CB (%)</td>
+<td></td>
+</tr>
+<tr>
+<td>sh_PT_MUN_NWENG</td>
+<td>Share of Inc Flux from PT_MUN_NWENG (%)</td>
+<td></td>
+</tr>
+<tr>
+<td>sh_PT_MUN_DELHUD</td>
+<td>Share of Inc Flux from PT_MUN_DELHUD (%)</td>
+<td></td>
+</tr>
+<tr>
+<td>sh_CMAQ2020KG</td>
+<td>Share of Inc Flux from CMAQ2020KG (%)</td>
+<td>Only TN2020</td>
+</tr>
+<tr>
+<td>sh_CMAQ2002KG</td>
+<td>Share of Inc Flux from CMAQ2002KG (%)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>sh_Dep_AnimalUnc_Kgni</td>
+<td>Share of Inc Flux from DEP_ANIMALUNC_KGNI (%)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>sh_Dep_AnimalCon_Kgni</td>
+<td>Share of Inc Flux from DEP_ANIMALCON_KGNI (%)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>sh_Dep_Fert_Kgni</td>
+<td>Share of Inc Flux from DEP_FERT_KGNI (%)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>sh_Dep_IndusElec_Kgni</td>
+<td>Share of Inc Flux from DEP_INDUSELEC_KGNI (%)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>sh_Dep_IndusOth_Kgni</td>
+<td>Share of Inc Flux from DEP_INDUSOTH_KGNI (%)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>sh_Dep_Vehicle_Kgni</td>
+<td>Share of Inc Flux from DEP_VEHICLE_KGNI (%)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>sh_Dep_BioFire_Kgni</td>
+<td>Share of Inc Flux from DEP_BIOFIRE_KGNI (%)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>sh_Dep_Intl_Kgni</td>
+<td>Share of Inc Flux from DEP_INTL_KGNI (%)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>sh_Dep_Area_Kgni</td>
+<td>Share of Inc Flux from DEP_AREA_KGNI (%)</td>
+<td>TN2002 only</td>
+</tr>
+<tr>
+<td>sh_UrbLand_SN</td>
+<td>Share of Inc Flux from URBLAND_SN (%)</td>
+<td></td>
+</tr>
+<tr>
+<td>sh_FertRotation</td>
+<td>Share of Inc Flux from FERTROTATION (%)</td>
+<td></td>
+</tr>
+<tr>
+<td>sh_Fert_other</td>
+<td>Share of Inc Flux from FERT_OTHER (%)</td>
+<td></td>
+</tr>
+<tr>
+<td>sh_ManureAll</td>
+<td>Share of Inc Flux from MANUREALL (%)</td>
+<td></td>
+</tr>
+</tbody></table>
+
+<h2>Data Definintions for &ldquo;massbalancereservoirs&rdquo;</h2>
+
+<p>Definition of attributes from the &ldquo;massbalancereservoirs&rdquo;  data set  (output from  postprocessing  of NHDPlus  SPARROW model runs)
+The file lists results for each of the 17,885 lakes/reservoirs  (corresponding to the 17,885 unique waterbody reach codes) that are simulated as a lake or reservoir in the current (August 2013) version of the SPARROW model for the northeast (hydroregion 01 and 02). 
+The attributes in red are reported in the tables in Appendix 1 of Moorman and others, 2014, U.S. Geological Survey Data Series Report 820.   (results are reported for &#39;large lakes&#39; (surface area &gt;= 5 square kilometers)
+          Moorman, M.C., Hoos, A.B., Bricker, S.B., Moore, R.B., García, A.M., and Ator, S.W., 2014, Nutrient load summaries for major lakes and estuaries of the Eastern United States, 2002: U.S. Geological Survey Data Series 820, 94 p.,  <a href="http://dx.doi.org/10.3133/ds820">http://dx.doi.org/10.3133/ds820</a>.
+With one important exception (explained in next sentence), we chose to report in the DS Report 820 appendix tables  the &ldquo;input&rdquo; part of the mass balance rather than the &ldquo;output&rdquo;(because the report focused on loads entering lakes/reservoirs/estuaries. 
+      The one exception to this is the estimate of &ldquo;Total load&rdquo; and &ldquo;Total yield&rdquo;,  reported along with source share percentages in DS Report 820.  We tried but found it messy to compute source shares percentages accurately for  for loads entering the lake from the various tributaries and lakeshore catchments, so the percentages pertain to outflow (i.e. are for load at downstream end of outlet reach).
+      To be consistent with how the source share percentages are derived, therefore,  we reported the outflow  load and yield values in the source share table</p>
+
+<table><thead>
+<tr>
+<th><strong>Attribute in &ldquo;massbalancereservoirs&rdquo;  data set</strong></th>
+<th><strong>Definition</strong></th>
+</tr>
+</thead><tbody>
+<tr>
+<td>EstuaryGroup</td>
+<td>Grouping number, for presentation of results in Appendix 1 of DS Report 820</td>
+</tr>
+<tr>
+<td>WBRCHCODE</td>
+<td>Waterbody Reachcode,  unique identifier for a reservoir or lake.  Most of these corresponds with the attribute &#39;REACHCODE&#39; in the shapefile NHDwaterbody except where manual fixes were made (documented in the SAS program that populates the SPARROW input data  set); in a few cases a new reachcode was assigned by Craig Johnston in 2012</td>
+</tr>
+<tr>
+<td>GNIS_NAME</td>
+<td>Waterbody name from the Geographic Name Information System</td>
+</tr>
+<tr>
+<td>demtarea</td>
+<td>Cumulative drainage area (km2) for the downstream node of the flowline reach segment at the downstream end of the reservoir (same as CUMDRAINAG)</td>
+</tr>
+<tr>
+<td>AreaSqKm</td>
+<td>Total area of surface area of the reservoir/lake, in km2  (from Craig Johnston)</td>
+</tr>
+<tr>
+<td>invhload_aggreg</td>
+<td>Inverse of the hydraulic load aggregated for lake (i.e. inverse of hload_aggreg, see below for calculation);  in days/meter - this is the value reported in DS 820 as &ldquo;Residence time, d/m&rdquo;</td>
+</tr>
+<tr>
+<td>TN_arealloading_in_perflush (misnomer,  should be named TN_LOAD_in_perflush)</td>
+<td>Tributary inflow load to lake per flushing rate (i.e. per hydraulic load, or could express as inflow load multiplied by inverse hydraulic load),  in kg*d/m, calculated as TN_LOAD_inflow / hload_aggreg - this is the value reported in DS 820 as &ldquo;Load from watershed per hydraulic flushing rate of receiving waterbody&rdquo;</td>
+</tr>
+<tr>
+<td>TP_arealloading_in_perflush (misnomer,  should be named TP_LOAD_in_perflush)</td>
+<td>Product of TP_arealloading_inload and invhload_aggreg   (see definitions of these attributes elsewhere)</td>
+</tr>
+<tr>
+<td>TN_CONC_inload</td>
+<td>Tributary inflow Nitrogen Concentration, mg/L  -  this is value reported in USGS DS 820 as &ldquo;Concentration of tributary inflow to receiving water&rdquo;, calculated as  (TN_LOAD_inflow) / (TOT_CFS * 28.32 * 1/1000000 * 86400 * 365 ).   Would have preferred to use sum of tributary inflow MAFLOWU as the demonimator but this was difficult to compute;  thus it&#39;s a slightly mixed calculation</td>
+</tr>
+<tr>
+<td>TP_CONC_inload</td>
+<td>Tributary inflow Phosphorus Concentration, mg/L  -  this is value reported in USGS DS 820 as &ldquo;Concentration of tributary inflow to receiving water&rdquo;, calculated as  (TP_LOAD_inflow) / (TOT_CFS * 28.32 * 1/1000000 * 86400 * 365 ).   Would have preferred to use sum of tributary inflow MAFLOWU as the demonimator but this was difficult to compute;  thus it&#39;s a slightly mixed calculation</td>
+</tr>
+<tr>
+<td>TNTP_CONC_inload</td>
+<td>Ratio of TN_CONC_inload to TP_CONC_inload - this is the value reported in USGS DS 820 as &ldquo;Ratio of TN:TP&rdquo;</td>
+</tr>
+<tr>
+<td>TN_massdecay</td>
+<td>Nitrogen mass removed in the lake,  kg/yr, summed from the amount removed in each incremental reservoir segment - this is value reported in USGS DS 820 as &ldquo;Load assimilated in receiving waterbody&rdquo;</td>
+</tr>
+<tr>
+<td>TP_massdecay</td>
+<td>Phosphorus mass removed in the lake,  kg/yr, summed from the amount removed in each incremental reservoir segment - this is value reported in USGS DS 820 as &ldquo;Load assimilated in receiving waterbody&rdquo;</td>
+</tr>
+<tr>
+<td>TN_decayperinflow</td>
+<td>Ratio of TN_massdecay to TN_LOAD_inflow</td>
+</tr>
+<tr>
+<td>TP_decayperinflow</td>
+<td>Ratio of TP_massdecay to TP_LOAD_inflow</td>
+</tr>
+<tr>
+<td>FTYPE</td>
+<td>Type of waterbody  ( only Lake/Pond waterbody polygons are included in the SPARROW input data set)</td>
+</tr>
+<tr>
+<td>FCODE</td>
+<td>Code for waterbody, from NHDWaterbody</td>
+</tr>
+<tr>
+<td>Acres</td>
+<td>Total area of surface area of the reservoir/lake, in acres</td>
+</tr>
+<tr>
+<td>networked</td>
+<td>Flag indicating that lake/reservoir waterbody intersects with initialized flowline (1 = yes, all entries in this table have value of 1)</td>
+</tr>
+<tr>
+<td>ReachType</td>
+<td>Flag indicating whether flowline segment is a stream (0) or reservoir (2) reach,  used for SPARROW model simulation of mass removed (all entries in this table have value = 2)</td>
+</tr>
+<tr>
+<td>huc8</td>
+<td>8-digit hydrologic unit code for the reach segment at the downstream end of the watebody polygon</td>
+</tr>
+<tr>
+<td>TOT_CFS</td>
+<td>Mean annual streamflow (cfs) for the reach segment at the downstream end of the reservoir (MAFLOWU)</td>
+</tr>
+<tr>
+<td>DIVERGENCE</td>
+<td></td>
+</tr>
+<tr>
+<td>OUTLET</td>
+<td>Flag indicating outlet reach  (all reaches in this data set are the outlet reaches)</td>
+</tr>
+<tr>
+<td>hload_aggreg</td>
+<td>Hydraulic load of the lake/reservoir (also known as the surface overflow rate, qs),  in meters per year, calculated as MAFLOWU * 0.02832 * 86400 * 365 / (AreaSA_KM2 * 1000000)</td>
+</tr>
+<tr>
+<td>hload_aggreg_yr</td>
+<td>Hydraulic load, in meters per year</td>
+</tr>
+<tr>
+<td>RetentCoeff_Nurnberg</td>
+<td>Retention Coefficient (Rs) of the reservoir, computed as 15 /  (hload +  18)   (using Nurnberg, 1998)</td>
+</tr>
+<tr>
+<td>TN_LOAD_outflow</td>
+<td>Total nitrogen load at downstream node of exit reach, in kg/yr - this is the value reported in USGS DS 820 source share table as &ldquo;Total load&rdquo;.    Wanted to use TN_LOAD_inflow here, to be consistent with use of trib inflow info in the table that follows, but see explanation at top of this file</td>
+</tr>
+<tr>
+<td>TP_LOAD_outflow</td>
+<td>Total phosphorus load at downstream node of exit reach, in kg/yr - this is the value reported in USGS DS 820 source share table as &ldquo;Total load&rdquo; -  Wanted to use TN_LOAD_inflow here, to be consistent with use of trib inflow info in the table that follows, but see explanation at top of this file</td>
+</tr>
+<tr>
+<td>TNTP_LOAD_outflow</td>
+<td>Ratio of TN_LOAD_outflow to TP_LOAD_outflow</td>
+</tr>
+<tr>
+<td>TN_LOAD_inflow</td>
+<td>Total nitrogen load entering lake from all tributaries and adjacent areas,  calculated from mass balance (load at downstream node of exit reach plus load removed in lake)</td>
+</tr>
+<tr>
+<td>TP_LOAD_inflow</td>
+<td>Total phosphorus load entering lake from all tributaries and adjacent areas,  calculated from mass balance (load at downstream node of exit reach plus load removed in lake)</td>
+</tr>
+<tr>
+<td>TNTP_LOAD_inflow</td>
+<td>Ratio of TN_LOAD_inflow to TP_LOAD_inflow</td>
+</tr>
+<tr>
+<td>TN_arealloading_inload</td>
+<td>Net specific or areal nitrogen loading (L) of the reservoir (kg/km2-yr), computed as ratio of TN_LOAD_inflow to AreaSqKm</td>
+</tr>
+<tr>
+<td>TN_arealloading_outload</td>
+<td>Net specific or areal nitrogen loading (L) of the reservoir (kg/km2-yr), computed as ratio of TN_LOAD_outflow to AreaSqKm</td>
+</tr>
+<tr>
+<td>TN_CONC_inlake</td>
+<td>Estimated In-Lake Nitrogen Concentration of reservoir  (mg/L), calculated as TN_arealloading_outload / (hload * (1 - RetentCoeff_Nurnberg))</td>
+</tr>
+<tr>
+<td>TP_arealloading_inload</td>
+<td>Net specific or areal phosphorus loading (L) of the reservoir (kg/km2-yr), computed as ratio of TP_LOAD_inflow to AreaSqKm</td>
+</tr>
+<tr>
+<td>TP_arealloading_outload</td>
+<td>Net specific or areal phosphorus loading (L) of the reservoir (kg/km2-yr), computed as ratio of TP_LOAD_outflow to AreaSqKm</td>
+</tr>
+<tr>
+<td>TP_CONC_inlake</td>
+<td>Estimated In-Lake Phosphorus Concentration of reservoir  (mg/L), calculated as TP_arealloading_outload / (hload * (1 - RetentCoeff_Nurnberg))</td>
+</tr>
+</tbody></table>
+
+<h2>Analysis</h2>
+
+<ul>
+<li>The first step is to aggregate and calculate the loads using my methods for each WBID.  This is done with qryCalLoads (EC2014.mdb)</li>
+<li>Loads are then compared.  WBID is joined to the Waterbody Reach ID with qryCompareLoads.<br/></li>
+<li>Input and incremental loads could not be compared since the raw data are for the decayed loads only and I need the undecayed loads.</li>
+<li>Output loads compare favorably for about 17k of the 17.8k lakes.</li>
+<li>Differences are due to differing views of what a lake is.  Some lakes have multiple reachcodes and some lakes have hydrologic issues.  But, in general it is a favorable comparison.</li>
+<li>Likewise flow is pretty much the same in both methods (qryCompareFlow)</li>
+</ul>
+
+</body>
+
+</html>
+
