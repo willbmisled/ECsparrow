@@ -1,13 +1,32 @@
-Create Spatial Objects for Waterbodies in HUC regions 01, 02, and 03
+Create Spatial Objects for Waterbodies in HUC regions 01, 02, 03, and 06
 ========================================================
+Stuff to do 
+-------------------------
+* ready 20140930
+
+<!---
+use these command instead of the knit icon if you want the data and work loaded into the R workspace
+First make sure you are in the data directory: 
+  setwd('data')
+  library(knitr)
+  knit('lakesSpatialData.rmd')
+  
+-->
+
+
 Spatial Data
 -------------------------
-* read the nhdwaterbody.shp files for the three regions
+* read the nhdwaterbody.shp files for the four regions
 * identify and remove duplicate lakes
 * merge lakes from the regions
 * dissolve based on reachcode-output= SpatialPolygonsDataframe "lakes" with geographic coordinates
 * get the centroids and convert to spdf with reachcode (WBRCHCODE) as an attribute. output= SpatialPointsDataframe "lakes" with geographic coordinates
-* save "lakes" and "lakesPt"
+* save data in "lakesSpatialData.rda"
+* two spatial datasets are created for the lakes in MRB1 and MRB2; both in geographic coordinates
+  * lakes: a spatial Polygons Dataframe with the lake locations based on reachcode (WBRCHCODE)
+  * lakesPt: a spatial Points Dataframe with the lake centroids based on reachcode (WBRCHCODE)
+  
+
 
 ************
 The following code will open the formatted text version of the Rmarkdown file in a browser:
@@ -16,17 +35,15 @@ The following code will open the formatted text version of the Rmarkdown file in
 ************
 The data can be loaded into R with the following code:
 ************
-  #Get the Data
-    load(url('https://raw.github.com/willbmisled/ECsparrow/master/data/lakesSpatialData.rda')
+  #Get the Data (make sure you are in the "data" subdirectory)
+    load(url('lakesSpatialData.rda'))
 
-
-
-```{r loadPkgs, include=FALSE, echo=FALSE, cache=FALSE}
+```{r loadPkgs, include=FALSE, echo=FALSE, cache=TRUE}
   options(stringsAsFactors = FALSE, scipen=9) 
 
 
   #function to install (if needed) and load R packages by list
-    libs<-c('rgdal','maptools','RODBC') #list of packages to load
+    libs<-c('RSQLite','rgdal','maptools','RODBC') #list of packages to load
   
     installLoad<-function(pck)#user defined function
     {
@@ -37,12 +54,8 @@ The data can be loaded into R with the following code:
     lapply(libs,function(x) installLoad(x))  #Load/Install require packages
 ```
 
-
-
-```{r lakes, include=FALSE, echo=FALSE, cache=FALSE}
-#set working directory
-  setwd('../data')
-
+```{r getShapes, include=FALSE, echo=FALSE, cache=TRUE}
+#getwd()  #need to be in ./data/
 #Get the NHDplus shapefiles for HUC regions 01,02, and 03
   HUC01<-readShapePoly('C:/Bryan/EPA/Data/GIS/NHDPlus/NHDPlus01/hydrography/nhdwaterbody.shp',IDvar="COMID", 
                       proj4string=CRS("+proj=longlat +datum=NAD83 +no_defs +ellps=GRS80 +towgs84=0,0,06"))
@@ -50,37 +63,64 @@ The data can be loaded into R with the following code:
                       proj4string=CRS("+proj=longlat +datum=NAD83 +no_defs +ellps=GRS80 +towgs84=0,0,06"))
   HUC03<-readShapePoly('C:/Bryan/EPA/Data/GIS/NHDPlus/NHDPlus03/hydrography/nhdwaterbody.shp',IDvar="COMID", 
                       proj4string=CRS("+proj=longlat +datum=NAD83 +no_defs +ellps=GRS80 +towgs84=0,0,06"))
+  HUC06<-readShapePoly('C:/Bryan/EPA/Data/GIS/NHDPlus/NHDPlus06/hydrography/nhdwaterbody.shp',IDvar="COMID", 
+                      proj4string=CRS("+proj=longlat +datum=NAD83 +no_defs +ellps=GRS80 +towgs84=0,0,06"))
+
+#eliminate lakes where REACHCODE==NA
+  table(!is.na(HUC01$REACHCODE))          #F=4250 T=12832
+    HUC01<-HUC01[!is.na(HUC01$REACHCODE),]
+      nrow(HUC01)                         #12832  
+  table(!is.na(HUC02$REACHCODE))          #F=4621 T=15484
+    HUC02<-HUC02[!is.na(HUC02$REACHCODE),]
+      nrow(HUC02)                         #15484  
+  table(!is.na(HUC03$REACHCODE))          #F=23361 T=59829 
+    HUC03<-HUC03[!is.na(HUC03$REACHCODE),]
+      nrow(HUC03)                         #59829  
+  table(!is.na(HUC06$REACHCODE))          #F=478  T=1529 
+    HUC06<-HUC06[!is.na(HUC06$REACHCODE),]
+      nrow(HUC06)                         #1529  
+```
+
+```{r mergeShapes, include=FALSE, echo=FALSE, cache=TRUE}
 #check to see if lakes are repeated
   w<-row.names(as(HUC01, "data.frame"))
   x<-row.names(as(HUC02, "data.frame"))
   y<-row.names(as(HUC03, "data.frame"))
+  z<-row.names(as(HUC06, "data.frame"))
   
-  table(w%in%x)
-    w[w%in%x]
+  table(w%in%x)  #no matches
   table(w%in%y)  #no matches
-  table(x%in%y)  #"7711214" "7713434"
-    x[x%in%y]    #"11585128" "11585144" "11585356"
-#eliminate duplicate lakes
-    nrow(HUC01) #17084
-      HUC01<-HUC01[-which(w%in%x),]
-        nrow(HUC01) #17082
-    nrow(HUC02) #20108
-      HUC02<-HUC02[-which(x%in%y),]
-        nrow(HUC02) #20105
-#merge the three layers
+  table(w%in%z)  #no matches
+  table(x%in%y)  #no matches
+  table(x%in%z)  #no matches
+  table(y%in%z)  #no matches
+
+#merge the four layers
   WB<-spRbind(HUC01,HUC02)
   WB<-spRbind(WB,HUC03)
-    nrow(WB)==nrow(HUC01)+nrow(HUC02)+nrow(HUC03)
+  WB<-spRbind(WB,HUC06)
+    nrow(WB)==nrow(HUC01)+nrow(HUC02)+nrow(HUC03)+nrow(HUC06)  #89674
+```
+
+```{r dissolveShapes, include=FALSE, echo=FALSE, cache=TRUE}
 #dissolve the polygons by REACHCODE
-  length(WB$REACHCODE) #120377
-  length(unique(WB$REACHCODE)) #87244
+  length(WB$REACHCODE) #89674
+  length(unique(WB$REACHCODE)) #88662
     lakes<-unionSpatialPolygons(WB, WB$REACHCODE)
+      nrow(lakes) #88662  
 #convert to SpatialPolygonsDataframe with reachcode as an attribute
   data<-data.frame(WBRCHCODE=row.names(lakes))  #the reachcodes
     row.names(data)<-row.names(lakes)
   lakes<-SpatialPolygonsDataFrame(lakes,data=data)
-#Associate lake holes (islands) with the correct polygon.  This is an important step.
+    nrow(lakes) #88662 
+```
+
+```{r fixHoles, include=FALSE, echo=FALSE, cache=TRUE}
+#Associate lake holes (islands) with the correct polygon. 
   slot(lakes, "polygons") <- lapply(slot(lakes, "polygons"), checkPolygonsHoles)
+```
+
+```{r points, include=FALSE, echo=FALSE, cache=TRUE}
 #create spatial points dataframe of lake centroids
   lakesPt<-gCentroid(lakes, byid=TRUE, id = NULL)  #reachcodes are the row.names for the spatialpoints object
 #convert to spatial points data.frame
@@ -88,8 +128,29 @@ The data can be loaded into R with the following code:
   data<-data.frame(WBRCHCODE=row.names(lakesPt))  #the reachcodes
       row.names(data)<-row.names(lakesPt)
   lakesPt<-SpatialPointsDataFrame(coords, data)  #convert to spdf
+#Check to see if all of the reachcodes for lakes with SPARROW data are included.
+  #Get the SPARROW lakes reachcodes.
+    EC<-dbConnect(SQLite(), dbname='EClakes.sqlite')
+      a<-dbGetQuery(EC, "SELECT WBRCHCODE from R2002m1") 
+      b<-dbGetQuery(EC, "SELECT WBRCHCODE from R2002m2")
+    RC<-rbind(a,b)
+  #compare reachcodes to lakesPt
+    test<-RC$WBRCHCODE%in%lakesPt$WBRCHCODE
+    table(test) #FALSE=43 TRUE=41523
+    a<-RC[!test,]
+    
 
 #save the data
-  save(lakes,lakesPt,file='../lakesSpatialData.rda')
+  save(lakes,lakesPt,file='lakesSpatialData.rda')
 ```
 
+Missing reachcodes 
+-------------------------
+* We have spatial data (lakesPt or lakes) for all but 43 of the lakes in EC aggregated lakes files (EClakes.sqlite)
+* The documentation of this database shows that some reachcodes were derived for lakes in MRB2.  
+* These are probably the missing lakes.
+* Here is a list of the missing reachcodes.
+
+```{r missing, include=TRUE, echo=FALSE, cache=TRUE}
+RC[!test,]
+```

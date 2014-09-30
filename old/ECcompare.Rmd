@@ -1,0 +1,192 @@
+East Coast Sparrow Model Compare Methods to Aggregate Loads to Lakes
+========================================================
+Data
+-------------------------
+* East Coast Sparrow data received from Anne Hoos on September 23 2014 as 4 sas files (forBryan_MRB2_Nitrogen_2002vs2020.zip) and saved to C:\Bryan\EPA\Data\Sparrow\EastCoast\Predictions20140923
+  * mrb2_massbalancereservoirs_2002.sas7bdat
+  * mrb2_massbalancereservoirs_2020.sas7bdat
+  * mrb2_predict_tn_2002.sas7bdat
+  * mrb2_predict_tn_2020.sas7bdat
+* SAS datasets opened in SAS and exported to Access
+* These data were added to a new access database (C:\Bryan\EPA\Data\Sparrow\EastCoast\Predictions20140923\EC2014.mdb) and the following tables were added as linked tables
+  * MRB1_NHDWaterbody (WaterbodyDatabse.mdb): the MRB1 NHDplus waterbodies showing the COMIDs and Reachcodes.
+  * tblJoinCOMID_WBID (WaterbodyDatabse.mdb): a table to match waterbody COMIDs to the Lake WBIDs
+  * tblJoinFlowline_WBID_InOut (MRB1.mdb): this table links the flowline COMIDs to the WBIDs and shows whether the flowline is an input or output to the lake or an internal reach.
+  * tblWBID_SParrowLoadDSS (MRB1.mdb): table with the Sparrow loads and flow I calculated from the DSS data.
+* tblWBRCHCODE was created with the "qryWBRCHCODE_Final".  This table links the WBIDs to the Waterbody Reachcodes.  A more detailed analysis of this relationship is presented below. 
+
+<!---
+use these command instead of the knit icon if you want the data and work loaded into the R workspace
+  library(knitr)
+  knit('./ECcompare.rmd')
+-->
+
+```{r loadPkgs, include=FALSE, echo=FALSE, cache=FALSE}
+  options(stringsAsFactors = FALSE, scipen=9) 
+
+
+  #function to install (if needed) and load R packages by list
+    libs<-c('RODBC','RSQLite') #list of packages to load
+  
+    installLoad<-function(pck)#user defined function
+    {
+      if(!pck%in%installed.packages()){install.packages(pck,repos="http://rweb.quant.ku.edu/cran/")}
+      require(pck, character.only = TRUE)
+    }
+  
+    lapply(libs,function(x) installLoad(x))  #Load/Install require packages
+```
+
+```{r gridcodes, include=FALSE, echo=FALSE, cache=TRUE}
+#get tblJoinCOMID_WBID & MRB1_NHDWaterbody
+  con <- odbcConnectAccess('C:/Bryan/EPA/Data/Sparrow/EastCoast/Predictions20140923/EC2014.mdb')
+    tblJoinCOMID_WBID<-sqlQuery(con,"SELECT tblJoinCOMID_WBID.WB_ID, tblJoinCOMID_WBID.COMID
+                                     FROM tblJoinCOMID_WBID;
+          ")
+      nrow(tblJoinCOMID_WBID)  #37192
+      length(unique(tblJoinCOMID_WBID$WB_ID))  #36274
+    MRB1_NHDWaterbody<-sqlQuery(con,"SELECT MRB1_NHDWaterbody.COMID, MRB1_NHDWaterbody.REACHCODE
+                                    FROM MRB1_NHDWaterbody;
+          ")
+      nrow(MRB1_NHDWaterbody)  #37190
+
+  close(con)
+
+# RSQLite
+  # Create the database if none exists;
+  # Or connects to the database if one already exists.
+    EC <- dbConnect(SQLite(), dbname='EC.sqlite')
+  #use this to delete db
+    #if (file.exists("EC.sqlite") == TRUE) file.remove("EC.sqlite") 
+  # Import tblJoinCOMID_WBID & MRB1_NHDWaterbody into database
+      dbWriteTable(conn=EC,name="tblJoinCOMID_WBID",value=tblJoinCOMID_WBID,row.names=FALSE,overwrite=TRUE)
+      dbWriteTable(conn=EC,name="MRB1_NHDWaterbody",value=MRB1_NHDWaterbody,row.names=FALSE,overwrite=TRUE)
+        #head(dbReadTable(EC, "tblJoinCOMID_WBID")) 
+        #nrow(dbReadTable(EC, "tblJoinCOMID_WBID")) #37192
+        #head(dbReadTable(EC, "MRB1_NHDWaterbody")) 
+        #nrow(dbReadTable(EC, "MRB1_NHDWaterbody")) #37190
+  #join tblJoinCOMID_WBID & MRB1_NHDWaterbody and write new table to database
+    a<-dbGetQuery(EC, "
+      SELECT tblJoinCOMID_WBID.WB_ID,tblJoinCOMID_WBID.COMID,MRB1_NHDWaterbody.REACHCODE
+      FROM tblJoinCOMID_WBID INNER JOIN MRB1_NHDWaterbody ON tblJoinCOMID_WBID.COMID = MRB1_NHDWaterbody.COMID
+      GROUP BY tblJoinCOMID_WBID.WB_ID, MRB1_NHDWaterbody.REACHCODE;
+    ")
+        length(a$WB_ID) #36306
+        length(unique(a$WB_ID)) #36274
+    dbWriteTable(conn=EC,name="temp",value=a,row.names=FALSE,overwrite=TRUE)
+      #head(dbReadTable(EC, "temp"))
+      #nrow(dbReadTable(EC, "temp"))  36306
+  #count the number of gridcodes per WBID
+    a<-dbGetQuery(EC, "
+      SELECT temp.WB_ID,Count(temp.REACHCODE) AS Count
+      FROM temp
+      GROUP BY temp.WB_ID
+      ORDER BY Count(temp.REACHCODE) DESC
+    ")
+    dbWriteTable(conn=EC,name="temp1",value=a,row.names=FALSE,overwrite=TRUE)
+      #head(dbReadTable(EC, "temp1"))
+  #add gridcode to temp1 and rename columns
+    a<-dbGetQuery(EC, "
+      SELECT temp.WB_ID AS WBID,temp.COMID,temp.REACHCODE AS WBRchCd,temp1.Count
+      FROM temp INNER JOIN temp1 ON temp.WB_ID=temp1.WB_ID
+      ORDER BY temp.WB_ID
+    ")
+    dbWriteTable(conn=EC,name="tblJoinWBID_WBRchCd",value=a,row.names=FALSE,overwrite=TRUE)
+      #head(dbReadTable(EC, "tblJoinWBID_WBRchCd"))
+  #delete the working tables  
+    dbListTables(EC) # List the tables in the database
+    dbRemoveTable(EC, "tblJoinCOMID_WBID")
+    dbRemoveTable(EC, "MRB1_NHDWaterbody")
+    dbRemoveTable(EC, "temp")
+    dbRemoveTable(EC, "temp1")
+  #read tblJoinWBID_WBRchCd into memory to be used in the text below
+      tblJoinWBID_WBRchCd<-dbGetQuery(EC, "
+        SELECT tblJoinWBID_WBRchCd.*
+        FROM tblJoinWBID_WBRchCd
+        ")
+
+
+head(tblJoinWBID_WBRchCd)
+```
+
+Use RSQLite to create tblJoinWBID_WBRchCd 
+-------------------------
+* First step: join the WBIDs to the GRIDCODES for MRB1
+  * Gridcodes for each NHDplus waterbody (COMID) are in the table MRB1_NHDWaterbody in EC2014.mdb
+  * The waterbody COMIDs and Gridcodes need to be joined to the WBIDs in tblJoinCOMID_WBID
+  * These tables are imported into a new SQLite databse (EC.sqlite)
+  * SQL is used to 
+    * read the tables from EC.sqlite, join them and write them to a new table.
+    * identify the WBIDs with multiple GRIDcodes 
+    * create a new table with WBID, COMID, GRIDCODE, and the Count
+    * delete the tables temp, temp1, tblJoinCOMID_WBID & MRB1_NHDWaterbody
+  * we end with a single table (tblJoinWBID_WBRchCd) in EC.sqlite
+  * Evaluate tblJoinWBID_WBRchCd
+      * `r nrow(tblJoinWBID_WBRchCd)` observations
+      * `r length(unique(tblJoinWBID_WBRchCd$WBID))` unique WBIDs 
+      * `r length(unique(tblJoinWBID_WBRchCd$WBRchCd))` unique Reachcodes
+      * `r nrow(tblJoinWBID_WBRchCd[is.na(tblJoinWBID_WBRchCd$WBRchCd),])` COMIDs with missing reachcodes; most of these are not really lakes but there is one is a subWaterbody of lake Champlain (WBID=22302965) with a missing reachcode.
+      * `r a<-tblJoinWBID_WBRchCd[tblJoinWBID_WBRchCd$Count>1,'WBID'];length(a)` observations with multiple reachcodes representing `r length(unique(a))` WBID lakes
+  * Below is a list of the lakes with multiple reachcodes.  These should be removed from the anlaysis.
+  
+```{r listLakes, include=TRUE, echo=FALSE, cache=FALSE}
+  tblJoinWBID_WBRchCd[tblJoinWBID_WBRchCd$Count>1,]
+```
+
+Data Definitions for tblJoinWBID_WBRchCd
+-------------------------
+**Field** | **Definition**
+------------- | -------------
+**WBID** | Unique Waterbody ID
+**COMID** | NHDplus Unique Waterbody ID-sometimes there are multiple COMID for a single WBID
+**WBRchCd** | NHDplus Waterbody Reachcode associated with each COMID; Note this was converted to numeric so leading Zero was lost.  Leading Zero can be added back or used as numeric.
+**Count** | Number of WBRchCds associated with the WBID-for analysis keep Count==1 
+
+Estimate Nitrogen Loads for Each WBID
+-------------------------
+**Get the 2002 Nitrogen predictions with the undecayed incremental loads**
+* There are a lot of fields most of which will not be used so I am not going to give data definitions
+* add table to EC.sqlite 
+
+```{r N2002, include=FALSE, echo=FALSE, cache=TRUE}
+#Get the 2002 Nitrogen predictions
+con <- odbcConnectAccess('C:/Bryan/EPA/Data/Sparrow/EastCoast/Predictions20140923/EC2014.mdb')
+   N2002<- sqlQuery(con, "SELECT tblJoinFlowline_WBID_InOut.* FROM tblJoinFlowline_WBID_InOut")
+
+#add to EC.sqlite
+  dbWriteTable(conn=EC,name="tblN2002",value=N2002,row.names=FALSE,overwrite=TRUE)
+```
+
+**Get tblJoinFlowline_WBID_InOut from MRB1.mdb**
+* This table links the NHDplus flowlines COMID to the WBID
+* Specifies whether a flowline is an input, output, or internal flowline
+* Useful for aggregating the SPARROW nitrogen predictions to lakes.
+* add table to EC.sqlite
+
+```{r tblJoinFlowline_WBID_InOut, include=FALSE, echo=FALSE, cache=TRUE}
+#read data from EC2014.mdb
+  con <- odbcConnectAccess('C:/Bryan/EPA/Data/Sparrow/EastCoast/Predictions20140923/EC2014.mdb')
+   tblJoinFlowline_WBID_InOut<- sqlQuery(con, "SELECT tblJoinFlowline_WBID_InOut.* FROM tblJoinFlowline_WBID_InOut")
+#rename WB_ID to WBID
+  names(tblJoinFlowline_WBID_InOut)[1]<-'WBID'
+#add to EC.sqlite
+  dbWriteTable(conn=EC,name="tblJoinFlowline_WBID_InOut",value=tblJoinFlowline_WBID_InOut,row.names=FALSE,overwrite=TRUE)
+```
+
+**Merge Tables N2002, tblJoinFlowline_WBID_InOut, and tblJoinWBID_WBRchCd
+* Th
+
+
+```{r mergeTables, include=FALSE, echo=FALSE, cache=TRUE}
+#read data from EC2014.mdb
+  a<-merge(tblJoinFlowline_WBID_InOut,tblJoinWBID_WBRchCd,by='WBID',all=F)
+    nrow(tblJoinFlowline_WBID_InOut) #
+    nrow(tblJoinWBID_WBRchCd)        #
+    nrow(a)
+```
+
+
+
+
+
+

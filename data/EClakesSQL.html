@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=9" >
+
+<title>East Coast Sparrow Model Data</title>
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 12px;
+   margin: 8px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 { 
+   font-size:2.2em; 
+}
+
+h2 { 
+   font-size:1.8em; 
+}
+
+h3 { 
+   font-size:1.4em; 
+}
+
+h4 { 
+   font-size:1.0em; 
+}
+
+h5 { 
+   font-size:0.9em; 
+}
+
+h6 { 
+   font-size:0.8em; 
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre {	
+   margin-top: 0;
+   max-width: 95%;
+   border: 1px solid #ccc;
+   white-space: pre-wrap;
+}
+
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code.r, code.cpp {
+   background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * { 
+      background: transparent !important; 
+      color: black !important; 
+      filter:none !important; 
+      -ms-filter: none !important; 
+   }
+
+   body { 
+      font-size:12pt; 
+      max-width:100%; 
+   }
+       
+   a, a:visited { 
+      text-decoration: underline; 
+   }
+
+   hr { 
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote { 
+      padding-right: 1em; 
+      page-break-inside: avoid; 
+   }
+
+   tr, img { 
+      page-break-inside: avoid; 
+   }
+
+   img { 
+      max-width: 100% !important; 
+   }
+
+   @page :left { 
+      margin: 15mm 20mm 15mm 10mm; 
+   }
+     
+   @page :right { 
+      margin: 15mm 10mm 15mm 20mm; 
+   }
+
+   p, h2, h3 { 
+      orphans: 3; widows: 3; 
+   }
+
+   h2, h3 { 
+      page-break-after: avoid; 
+   }
+}
+
+</style>
+
+
+
+
+
+</head>
+
+<body>
+<h1>East Coast Sparrow Model Data</h1>
+
+<!---
+use these command instead of the knit icon if you want the data and work loaded into the R workspace
+First make sure you are in the data directory: setwd('data')
+  library(knitr)
+  knit('EClakesSQL.rmd')
+-->
+
+<h2>Create EClakes.sqlite in the &ldquo;./data/&rdquo; subdirectory and add the following tables</h2>
+
+<ul>
+<li><p><strong>Table R2002m1</strong>: Nitrogen predictions for MRB1 aggregated to lakes by reachcode (WBRchCd). Original data received from Anne Hoos on September 11 2014 (Sasdataset: &ldquo;mrb1_massbalancereservoirs_2002.sas7bdat&rdquo; in “forBryan_corrected_MRB1_Nitrogen_2002vs2020.zip”) and saved to C:\Bryan\EPA\Data\Sparrow\EastCoast\Predictions20140911. File read directly into R and saved as a table in EClakes.sqlite.</p></li>
+<li><p><strong>Table R2002m2</strong>: Nitrogen predictions for MRB2 aggregated to lakes by reachcode (WBRchCd). Original data received from Anne Hoos on September 23 2014 (Sasdataset: &ldquo;mrb2_massbalancereservoirs_2002.sas7bdat&rdquo; in “forBryan_MRB2_Nitrogen_2002vs2020.zip”) and saved to C:\Bryan\EPA\Data\Sparrow\EastCoast\Predictions20140923. File read directly into R and saved as a table in EClakes.sqlite.</p></li>
+<li><p><strong>Table R2020m1</strong>: Nitrogen predictions for MRB1 aggregated to lakes by reachcode (WBRchCd). Original data received from Anne Hoos on September 11 2014 (Sasdataset: &ldquo;mrb1_massbalancereservoirs_2020.sas7bdat&rdquo; in “forBryan_corrected_MRB1_Nitrogen_2002vs2020.zip”) and saved to C:\Bryan\EPA\Data\Sparrow\EastCoast\Predictions20140911. File read directly into R and saved as a table in EClakes.sqlite.</p></li>
+<li><p><strong>Table R2020m2</strong>: Nitrogen predictions for MRB2 aggregated to lakes by reachcode (WBRchCd). Original data received from Anne Hoos on September 23 2014 (Sasdataset: &ldquo;mrb2_massbalancereservoirs_2020.sas7bdat&rdquo; in “forBryan_MRB2_Nitrogen_2002vs2020.zip”) and saved to C:\Bryan\EPA\Data\Sparrow\EastCoast\Predictions20140923. File read directly into R and saved as a table in EClakes.sqlite.</p></li>
+</ul>
+
+<h2>Data Table Descriptions</h2>
+
+<p>Sources:</p>
+
+<ul>
+<li>MRB1 data: README_definitionofattributes_massbalancereservoirs.xlsx </li>
+<li>MRB2 data: README_definitionofattributes_massbalancereservoirs_MRB2.xlsx</li>
+</ul>
+
+<p>Definition of attributes from the &ldquo;massbalancereservoirs&rdquo;  data sets  (output from  postprocessing  of NHDPlus  SPARROW model runs)
+The file lists results for each of the 17,885 lakes/reservoirs in MRB1 and the 23,681 lakes/reservoirs in MRB2 (corresponding to the unique waterbody reach codes for each MRB) that are simulated as a lake or reservoir in the current (August 2013) version of the SPARROW model for the northeast (hydroregion 01 and 02). 
+The attributes in red (see XLSX files) are reported in the tables in Appendix 1 of Moorman and others, 2014, U.S. Geological Survey Data Series Report 820.   (results are reported for &#39;large lakes&#39; (surface area &gt;= 5 square kilometers)
+          Moorman, M.C., Hoos, A.B., Bricker, S.B., Moore, R.B., García, A.M., and Ator, S.W., 2014, Nutrient load summaries for major lakes and estuaries of the Eastern United States, 2002: U.S. Geological Survey Data Series 820, 94 p.,  <a href="http://dx.doi.org/10.3133/ds820">http://dx.doi.org/10.3133/ds820</a>.
+With one important exception (explained in next sentence), we chose to report in the DS Report 820 appendix tables  the &ldquo;input&rdquo; part of the mass balance rather than the &ldquo;output&rdquo;(because the report focused on loads entering lakes/reservoirs/estuaries. 
+      The one exception to this is the estimate of &ldquo;Total load&rdquo; and &ldquo;Total yield&rdquo;,  reported along with source share percentages in DS Report 820.  We tried but found it messy to compute source shares percentages accurately for  for loads entering the lake from the various tributaries and lakeshore catchments, so the percentages pertain to outflow (i.e. are for load at downstream end of outlet reach).
+      To be consistent with how the source share percentages are derived, therefore,  we reported the outflow  load and yield values in the source share table</p>
+
+<p><strong>Data Definitions for TablesR2002m1 and R2020m1</strong></p>
+
+<table><thead>
+<tr>
+<th><strong>Field</strong></th>
+<th><strong>Definition</strong></th>
+</tr>
+</thead><tbody>
+<tr>
+<td><strong>EstuaryGroup</strong></td>
+<td>Grouping number, for presentation of results in Appendix 1 of DS Report 820</td>
+</tr>
+<tr>
+<td><strong>WBRCHCODE</strong></td>
+<td>Waterbody Reachcode,  unique identifier for a reservoir or lake.  Most of these corresponds with the attribute &#39;REACHCODE&#39; in the shapefile NHDwaterbody except where manual fixes were made (documented in the SAS program that populates the SPARROW input data  set); in a few cases a new reachcode was assigned by Craig Johnston in 2012</td>
+</tr>
+<tr>
+<td><strong>GNIS_NAME</strong></td>
+<td>Waterbody name from the Geographic Name Information System</td>
+</tr>
+<tr>
+<td><strong>demtarea</strong></td>
+<td>Cumulative drainage area (km2) for the downstream node of the flowline reach segment at the downstream end of the reservoir (same as CUMDRAINAG)</td>
+</tr>
+<tr>
+<td><strong>AreaSqKm</strong></td>
+<td>Total area of surface area of the reservoir/lake, in km2  (from Craig Johnston)</td>
+</tr>
+<tr>
+<td><strong>invhload_aggreg</strong></td>
+<td>Inverse of the hydraulic load aggregated for lake (i.e. inverse of hload_aggreg, see below for calculation);  in days/meter - this is the value reported in DS 820 as &ldquo;Residence time, d/m&rdquo;</td>
+</tr>
+<tr>
+<td><strong>TN_arealloading_in_perflush (misnomer,  should be named TN_LOAD_in_perflush)</strong></td>
+<td>Tributary inflow load to lake per flushing rate (i.e. per hydraulic load, or could express as inflow load multiplied by inverse hydraulic load),  in kg*d/m, calculated as TN_LOAD_inflow / hload_aggreg - this is the value reported in DS 820 as &ldquo;Load from watershed per hydraulic flushing rate of receiving waterbody&rdquo;</td>
+</tr>
+<tr>
+<td><strong>TP_arealloading_in_perflush (misnomer,  should be named TP_LOAD_in_perflush)</strong></td>
+<td>Product of TP_arealloading_inload and invhload_aggreg   (see definitions of these attributes elsewhere)</td>
+</tr>
+<tr>
+<td><strong>TN_CONC_inload</strong></td>
+<td>Tributary inflow Nitrogen Concentration, mg/L  -  this is value reported in USGS DS 820 as &ldquo;Concentration of tributary inflow to receiving water&rdquo;, calculated as  (TN_LOAD_inflow) / (TOT_CFS * 28.32 * 1/1000000 * 86400 * 365 ).   Would have preferred to use sum of tributary inflow MAFLOWU as the demonimator but this was difficult to compute;  thus it&#39;s a slightly mixed calculation</td>
+</tr>
+<tr>
+<td><strong>TP_CONC_inload</strong></td>
+<td>Tributary inflow Phosphorus Concentration, mg/L  -  this is value reported in USGS DS 820 as &ldquo;Concentration of tributary inflow to receiving water&rdquo;, calculated as  (TP_LOAD_inflow) / (TOT_CFS * 28.32 * 1/1000000 * 86400 * 365 ).   Would have preferred to use sum of tributary inflow MAFLOWU as the demonimator but this was difficult to compute;  thus it&#39;s a slightly mixed calculation</td>
+</tr>
+<tr>
+<td><strong>TNTP_CONC_inload</strong></td>
+<td>Ratio of TN_CONC_inload to TP_CONC_inload - this is the value reported in USGS DS 820 as &ldquo;Ratio of TN:TP&rdquo;</td>
+</tr>
+<tr>
+<td><strong>TN_massdecay</strong></td>
+<td>Nitrogen mass removed in the lake,  kg/yr, summed from the amount removed in each incremental reservoir segment - this is value reported in USGS DS 820 as &ldquo;Load assimilated in receiving waterbody&rdquo;</td>
+</tr>
+<tr>
+<td><strong>TP_massdecay</strong></td>
+<td>Phosphorus mass removed in the lake,  kg/yr, summed from the amount removed in each incremental reservoir segment - this is value reported in USGS DS 820 as &ldquo;Load assimilated in receiving waterbody&rdquo;</td>
+</tr>
+<tr>
+<td><strong>TN_decayperinflow</strong></td>
+<td>Ratio of TN_massdecay to TN_LOAD_inflow</td>
+</tr>
+<tr>
+<td><strong>TP_decayperinflow</strong></td>
+<td>Ratio of TP_massdecay to TP_LOAD_inflow</td>
+</tr>
+<tr>
+<td><strong>FTYPE</strong></td>
+<td>Type of waterbody  ( only Lake/Pond waterbody polygons are included in the SPARROW input data set)</td>
+</tr>
+<tr>
+<td><strong>FCODE</strong></td>
+<td>Code for waterbody, from NHDWaterbody</td>
+</tr>
+<tr>
+<td><strong>Acres</strong></td>
+<td>Total area of surface area of the reservoir/lake, in acres</td>
+</tr>
+<tr>
+<td><strong>networked</strong></td>
+<td>Flag indicating that lake/reservoir waterbody intersects with initialized flowline (1 = yes, all entries in this table have value of 1)</td>
+</tr>
+<tr>
+<td><strong>ReachType</strong></td>
+<td>Flag indicating whether flowline segment is a stream (0) or reservoir (2) reach,  used for SPARROW model simulation of mass removed (all entries in this table have value = 2)</td>
+</tr>
+<tr>
+<td><strong>huc8</strong></td>
+<td>8-digit hydrologic unit code for the reach segment at the downstream end of the watebody polygon</td>
+</tr>
+<tr>
+<td><strong>TOT_CFS</strong></td>
+<td>Mean annual streamflow (cfs) for the reach segment at the downstream end of the reservoir (MAFLOWU)</td>
+</tr>
+<tr>
+<td><strong>DIVERGENCE</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>OUTLET</strong></td>
+<td>Flag indicating outlet reach  (all reaches in this data set are the outlet reaches)</td>
+</tr>
+<tr>
+<td><strong>hload_aggreg</strong></td>
+<td>Hydraulic load of the lake/reservoir (also known as the surface overflow rate, qs),  in meters per year, calculated as MAFLOWU * 0.02832 * 86400 * 365 / (AreaSA_KM2 * 1000000)</td>
+</tr>
+<tr>
+<td><strong>hload_aggreg_yr</strong></td>
+<td>Hydraulic load, in meters per year</td>
+</tr>
+<tr>
+<td><strong>RetentCoeff_Nurnberg</strong></td>
+<td>Retention Coefficient (Rs) of the reservoir, computed as 15 /  (hload +  18)   (using Nurnberg, 1998)</td>
+</tr>
+<tr>
+<td><strong>TN_LOAD_outflow</strong></td>
+<td>Total nitrogen load at downstream node of exit reach, in kg/yr - this is the value reported in USGS DS 820 source share table as &ldquo;Total load&rdquo;.    Wanted to use TN_LOAD_inflow here, to be consistent with use of trib inflow info in the table that follows, but see explanation at top of this file</td>
+</tr>
+<tr>
+<td><strong>TP_LOAD_outflow</strong></td>
+<td>Total phosphorus load at downstream node of exit reach, in kg/yr - this is the value reported in USGS DS 820 source share table as &ldquo;Total load&rdquo; -  Wanted to use TN_LOAD_inflow here, to be consistent with use of trib inflow info in the table that follows, but see explanation at top of this file</td>
+</tr>
+<tr>
+<td><strong>TNTP_LOAD_outflow</strong></td>
+<td>Ratio of TN_LOAD_outflow to TP_LOAD_outflow</td>
+</tr>
+<tr>
+<td><strong>TN_LOAD_inflow</strong></td>
+<td>Total nitrogen load entering lake from all tributaries and adjacent areas,  calculated from mass balance (load at downstream node of exit reach plus load removed in lake)</td>
+</tr>
+<tr>
+<td><strong>TP_LOAD_inflow</strong></td>
+<td>Total phosphorus load entering lake from all tributaries and adjacent areas,  calculated from mass balance (load at downstream node of exit reach plus load removed in lake)</td>
+</tr>
+<tr>
+<td><strong>TNTP_LOAD_inflow</strong></td>
+<td>Ratio of TN_LOAD_inflow to TP_LOAD_inflow</td>
+</tr>
+<tr>
+<td><strong>TN_arealloading_inload</strong></td>
+<td>Net specific or areal nitrogen loading (L) of the reservoir (kg/km2-yr), computed as ratio of TN_LOAD_inflow to AreaSqKm</td>
+</tr>
+<tr>
+<td><strong>TN_arealloading_outload</strong></td>
+<td>Net specific or areal nitrogen loading (L) of the reservoir (kg/km2-yr), computed as ratio of TN_LOAD_outflow to AreaSqKm</td>
+</tr>
+<tr>
+<td><strong>TN_CONC_inlake</strong></td>
+<td>Estimated In-Lake Nitrogen Concentration of reservoir  (mg/L), calculated as TN_arealloading_outload / (hload * (1 - RetentCoeff_Nurnberg))</td>
+</tr>
+<tr>
+<td><strong>TP_arealloading_inload</strong></td>
+<td>Net specific or areal phosphorus loading (L) of the reservoir (kg/km2-yr), computed as ratio of TP_LOAD_inflow to AreaSqKm</td>
+</tr>
+<tr>
+<td><strong>TP_arealloading_outload</strong></td>
+<td>Net specific or areal phosphorus loading (L) of the reservoir (kg/km2-yr), computed as ratio of TP_LOAD_outflow to AreaSqKm</td>
+</tr>
+<tr>
+<td><strong>TP_CONC_inlake</strong></td>
+<td>Estimated In-Lake Phosphorus Concentration of reservoir  (mg/L), calculated as TP_arealloading_outload / (hload * (1 - RetentCoeff_Nurnberg))</td>
+</tr>
+</tbody></table>
+
+<p><strong>Data Definitions for TablesR2002m2 and R2020m2</strong></p>
+
+<table><thead>
+<tr>
+<th><strong>Field</strong></th>
+<th><strong>Definition</strong></th>
+</tr>
+</thead><tbody>
+<tr>
+<td><strong>ClusterNum</strong></td>
+<td>Grouping number, for presentation of results in Appendix 1 of DS Report 820</td>
+</tr>
+<tr>
+<td><strong>WBRCHCODE</strong></td>
+<td>Waterbody Reachcode (original field name: WBRchCd),  unique identifier for a reservoir or lake.  Most of these corresponds with the attribute &#39;REACHCODE&#39; in the shapefile NHDwaterbody except where manual fixes were made (documented in the SAS program that populates the SPARROW input data  set); in a few cases a new reachcode was assigned by Anne Hoos in 2010</td>
+</tr>
+<tr>
+<td><strong>WB_NAME_v2</strong></td>
+<td>Waterbody name from the Geographic Name Information System (with corrections/revisions from Jennifer Murphy and Anne Hoos, 2010</td>
+</tr>
+<tr>
+<td><strong>cumdrainag</strong></td>
+<td>Cumulative drainage area (km2) for the downstream node of the flowline reach segment at the downstream end of the reservoir (same as CUMDRAINAG)</td>
+</tr>
+<tr>
+<td><strong>Res_sumofsegmentSA_KM2</strong></td>
+<td>Total area of surface area of the reservoir/lake, in km2  (from summing SA_KM2 for all the flowline segments associated with reservoir or lake</td>
+</tr>
+<tr>
+<td><strong>invhload_aggreg</strong></td>
+<td>Inverse of the hydraulic load aggregated for lake (i.e. inverse of hload_aggreg, see below for calculation);  in days/meter - this is the value reported in DS 820 as &ldquo;Residence time, d/m&rdquo;</td>
+</tr>
+<tr>
+<td><strong>TN_arealloading_in_perflush (misnomer,  should be named TN_LOAD_in_perflush)</strong></td>
+<td>Tributary inflow load to lake per flushing rate (i.e. per hydraulic load, or could express as inflow load multiplied by inverse hydraulic load),  in kg*d/m, calculated as TN_LOAD_inflow / hload_aggreg - this is the value reported in DS 820 as &ldquo;Load from watershed per hydraulic flushing rate of receiving waterbody&rdquo;</td>
+</tr>
+<tr>
+<td><strong>TP_arealloading_in_perflush (misnomer,  should be named TP_LOAD_in_perflush)</strong></td>
+<td>Product of TP_arealloading_inload and invhload_aggreg   (see definitions of these attributes elsewhere)</td>
+</tr>
+<tr>
+<td><strong>TN_CONC_inload</strong></td>
+<td>Tributary inflow Nitrogen Concentration, mg/L  -  this is value reported in USGS DS 820 as &ldquo;Concentration of tributary inflow to receiving water&rdquo;, calculated as  (TN_LOAD_inflow) / (TOT_CFS * 28.32 * 1/1000000 * 86400 * 365 ).   Would have preferred to use sum of tributary inflow MAFLOWU as the demonimator but this was difficult to compute;  thus it&#39;s a slightly mixed calculation</td>
+</tr>
+<tr>
+<td><strong>TP_CONC_inload</strong></td>
+<td>Tributary inflow Phosphorus Concentration, mg/L  -  this is value reported in USGS DS 820 as &ldquo;Concentration of tributary inflow to receiving water&rdquo;, calculated as  (TP_LOAD_inflow) / (TOT_CFS * 28.32 * 1/1000000 * 86400 * 365 ).   Would have preferred to use sum of tributary inflow MAFLOWU as the demonimator but this was difficult to compute;  thus it&#39;s a slightly mixed calculation</td>
+</tr>
+<tr>
+<td><strong>TNTP_CONC_inload</strong></td>
+<td>Ratio of TN_CONC_inload to TP_CONC_inload - this is the value reported in USGS DS 820 as &ldquo;Ratio of TN:TP&rdquo;</td>
+</tr>
+<tr>
+<td><strong>TN_massdecay</strong></td>
+<td>Nitrogen mass removed in the lake,  kg/yr, summed from the amount removed in each incremental reservoir segment - this is value reported in USGS DS 820 as &ldquo;Load assimilated in receiving waterbody&rdquo;</td>
+</tr>
+<tr>
+<td><strong>TP_massdecay</strong></td>
+<td>Phosphorus mass removed in the lake,  kg/yr, summed from the amount removed in each incremental reservoir segment - this is value reported in USGS DS 820 as &ldquo;Load assimilated in receiving waterbody&rdquo;</td>
+</tr>
+<tr>
+<td><strong>TN_decayperinflow</strong></td>
+<td>Ratio of TN_massdecay to TN_LOAD_inflow</td>
+</tr>
+<tr>
+<td><strong>TP_decayperinflow</strong></td>
+<td>Ratio of TP_massdecay to TP_LOAD_inflow</td>
+</tr>
+<tr>
+<td><strong>Res_NumSegments</strong></td>
+<td>Total number of flowline segments associated with reservoir or lake</td>
+</tr>
+<tr>
+<td><strong>WB_AREASQKM</strong></td>
+<td>Total area of the waterbody polygon (from the NHDwaterbody shapefile).  Where multiple waterbody polygons constitute a reservoir this number is smaller than Res_sumofsegmentSA_KM2</td>
+</tr>
+<tr>
+<td><strong>WB_FTYPE</strong></td>
+<td>Type of waterbody  ( only Lake/Pond waterbody polygons are included in the SPARROW input data set)</td>
+</tr>
+<tr>
+<td><strong>WB_GNIS_ID</strong></td>
+<td>Waterbody ID from the Geographic Name Information System, from the shapefile NHDwaterbody</td>
+</tr>
+<tr>
+<td><strong>WB_Comment</strong></td>
+<td>Comment added by Anne Hoos or Jennifer Murphy if changes were made to attributes from NHDwaterbody (e.g. if WBRchCd was changed where two or more WBRchCd values refer to the same reservoir, or if determined that waterbody was coastal/brackish rather than freshwater and therefore SA_KM2 set to 0)</td>
+</tr>
+<tr>
+<td><strong>TempArcID</strong></td>
+<td>Flag (set equal to waterbody comid) indicating that this is a single-polygon reservoir/lake (verified from inspection) that was missing Waterbody Reachcode assignment in the shapefile NHDwaterbody and therefore WBRchCd has been set to waterbody comid</td>
+</tr>
+<tr>
+<td><strong>outletreach_comid</strong></td>
+<td>COMID of outlet reach,  i.e. the  flowline identified as the most downstream (largest value of cumdrainag) for the reservoir or lake</td>
+</tr>
+<tr>
+<td><strong>outletreach_LAT</strong></td>
+<td>Latitude (decimal degrees)  of downstream node of the outlet reach</td>
+</tr>
+<tr>
+<td><strong>outletreach_LON</strong></td>
+<td>Longitude (decimal degrees)  of downstream node of the outlet reach</td>
+</tr>
+<tr>
+<td><strong>huc8</strong></td>
+<td>8-digit hydrologic unit code for the reach segment at the downstream end of the watebody polygon</td>
+</tr>
+<tr>
+<td><strong>TN_LOAD</strong></td>
+<td>same as TN_LOAD_outflow,  see below  (I should have deleted this attribute from the data set after renaming it to TN_LOAD_OUTFLOW)</td>
+</tr>
+<tr>
+<td><strong>rchtype</strong></td>
+<td>Flag indicating whether flowline segment is a stream (0) or reservoir (2) reach,  used for SPARROW model simulation of mass removed (all entries in this table have value = 2)</td>
+</tr>
+<tr>
+<td><strong>TOT_CFS</strong></td>
+<td>Mean annual streamflow (cfs) for the reach segment at the downstream end of the reservoir (MAFLOWU)</td>
+</tr>
+<tr>
+<td><strong>TP_LOAD</strong></td>
+<td>same as TP_LOAD_OUTFLOW,  see below (I should have deleted this attribute from the dataset after renaming it to TP_LOAD_OUTFLOW)</td>
+</tr>
+<tr>
+<td><strong>hload_aggreg</strong></td>
+<td>Hydraulic load of the lake/reservoir (also known as the surface overflow rate, qs),  in meters per year, calculated as MAFLOWU * 0.02832 * 86400 * 365 / (AreaSA_KM2 * 1000000)</td>
+</tr>
+<tr>
+<td><strong>hload_aggreg_yr</strong></td>
+<td>Hydraulic load, in meters per year</td>
+</tr>
+<tr>
+<td><strong>RetentCoeff_Nurnberg</strong></td>
+<td>Retention Coefficient (Rs) of the reservoir, computed as 15 /  (hload +  18)   (using Nurnberg, 1998)</td>
+</tr>
+<tr>
+<td><strong>TN_LOAD_outflow</strong></td>
+<td>Total nitrogen load at downstream node of exit reach, in kg/yr - this is the value reported in USGS DS 820 source share table as &ldquo;Total load&rdquo;.    Wanted to use TN_LOAD_inflow here, to be consistent with use of trib inflow info in the table that follows, but see explanation at top of this file</td>
+</tr>
+<tr>
+<td><strong>TP_LOAD_outflow</strong></td>
+<td>Total phosphorus load at downstream node of exit reach, in kg/yr - this is the value reported in USGS DS 820 source share table as &ldquo;Total load&rdquo; -  Wanted to use TN_LOAD_inflow here, to be consistent with use of trib inflow info in the table that follows, but see explanation at top of this file</td>
+</tr>
+<tr>
+<td><strong>TNTP_LOAD_outflow</strong></td>
+<td>Ratio of TN_LOAD_outflow to TP_LOAD_outflow</td>
+</tr>
+<tr>
+<td><strong>TN_LOAD_inflow</strong></td>
+<td>Total nitrogen load entering lake from all tributaries and adjacent areas,  calculated from mass balance (load at downstream node of exit reach plus load removed in lake)</td>
+</tr>
+<tr>
+<td><strong>TP_LOAD_inflow</strong></td>
+<td>Total phosphorus load entering lake from all tributaries and adjacent areas,  calculated from mass balance (load at downstream node of exit reach plus load removed in lake)</td>
+</tr>
+<tr>
+<td><strong>TNTP_LOAD_inflow</strong></td>
+<td>Ratio of TN_LOAD_inflow to TP_LOAD_inflow</td>
+</tr>
+<tr>
+<td><strong>TN_arealloading_inload</strong></td>
+<td>Net specific or areal nitrogen loading (L) of the reservoir (kg/km2-yr), computed as ratio of TN_LOAD_inflow to AreaSqKm</td>
+</tr>
+<tr>
+<td><strong>TN_arealloading_outload</strong></td>
+<td>Net specific or areal nitrogen loading (L) of the reservoir (kg/km2-yr), computed as ratio of TN_LOAD_outflow to AreaSqKm</td>
+</tr>
+<tr>
+<td><strong>TN_CONC_inlake</strong></td>
+<td>Estimated In-Lake Nitrogen Concentration of reservoir  (mg/L), calculated as TN_arealloading_outload / (hload * (1 - RetentCoeff_Nurnberg))</td>
+</tr>
+<tr>
+<td><strong>TP_arealloading_inload</strong></td>
+<td>Net specific or areal phosphorus loading (L) of the reservoir (kg/km2-yr), computed as ratio of TP_LOAD_inflow to AreaSqKm</td>
+</tr>
+<tr>
+<td><strong>TP_arealloading_outload</strong></td>
+<td>Net specific or areal phosphorus loading (L) of the reservoir (kg/km2-yr), computed as ratio of TP_LOAD_outflow to AreaSqKm</td>
+</tr>
+<tr>
+<td><strong>TP_CONC_inlake</strong></td>
+<td>Estimated In-Lake Phosphorus Concentration of reservoir  (mg/L), calculated as TP_arealloading_outload / (hload * (1 - RetentCoeff_Nurnberg))</td>
+</tr>
+<tr>
+<td><strong>TNTP_CONC_inlake</strong></td>
+<td>Ratio of TN_CONC_inlake to TP_CONC_inlake</td>
+</tr>
+</tbody></table>
+
+</body>
+
+</html>
+

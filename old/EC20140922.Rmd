@@ -1,0 +1,32 @@
+East Coast Sparrow Model Notes Version EC20140922
+========================================================
+```{r loadPkgs, include=FALSE, echo=FALSE, cache=FALSE}
+  options(stringsAsFactors = FALSE, scipen=9) 
+
+
+  #function to install (if needed) and load R packages by list
+    libs<-c('RODBC','rgdal','maptools') #list of packages to load
+  
+    installLoad<-function(pck)#user defined function
+    {
+      if(!pck%in%installed.packages()){install.packages(pck,repos="http://rweb.quant.ku.edu/cran/")}
+      require(pck, character.only = TRUE)
+    }
+  
+    lapply(libs,function(x) installLoad(x))  #Load/Install require packages
+```
+Data
+-------------------------
+* Data received from Anne Hoos on September 22-23 2014 as 4 sas files and save to C:\Bryan\EPA\Data\Sparrow\EastCoast\Predictions20140922
+  * mrb1_massbal_2002_exc_incdeca.sas7bdat
+  * mrb1_massbalancereserxxxxxx
+  * predict_tn_2002_mrb1_exc_incdeca.sas7bdat
+  * mrb1_prexxxxxx
+* These data were added to a new access database (EC2014.mdb) and the following tables were added
+  * MRB1_NHDWaterbody (WaterbodyDatabse.mdb): the MRB1 NHDplus waterbodies showing the COMIDs and Reachcodes.
+  * tblJoinCOMID_WBID (WaterbodyDatabse.mdb): a table to match waterbody COMIDs to the Lake WBIDs
+  * tblJoinFlowline_WBID_InOut (MRB1.mdb): this table links the flowline COMIDs to the WBIDs and shows whether the flowline is an input or output to the lake or an internal reach.
+  * tblWBID_SParrowLoadDSS (MRB1.mdb): table with the Sparrow loads and flow I calculated from the DSS data.
+  
+
+
