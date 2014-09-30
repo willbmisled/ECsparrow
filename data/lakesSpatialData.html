@@ -5,7 +5,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta http-equiv="x-ua-compatible" content="IE=9" >
 
-<title>Create Spatial Objects for Waterbodies in HUC regions 01, 02, and 03</title>
+<title>Create Spatial Objects for Waterbodies in HUC regions 01, 02, 03, and 06</title>
 
 <style type="text/css">
 body, td {
@@ -142,18 +142,72 @@ hr {
 </head>
 
 <body>
-<h1>Create Spatial Objects for Waterbodies in HUC regions 01, 02, and 03</h1>
+<h1>Create Spatial Objects for Waterbodies in HUC regions 01, 02, 03, and 06</h1>
+
+<h2>Stuff to do </h2>
+
+<ul>
+<li>ready 20140930</li>
+</ul>
+
+<!---
+use these command instead of the knit icon if you want the data and work loaded into the R workspace
+First make sure you are in the data directory: 
+  setwd('data')
+  library(knitr)
+  knit('lakesSpatialData.rmd')
+  
+-->
 
 <h2>Spatial Data</h2>
 
 <ul>
-<li>read the nhdwaterbody.shp files for the three regions</li>
+<li>read the nhdwaterbody.shp files for the four regions</li>
 <li>identify and remove duplicate lakes</li>
 <li>merge lakes from the regions</li>
 <li>dissolve based on reachcode-output= SpatialPolygonsDataframe &ldquo;lakes&rdquo; with geographic coordinates</li>
 <li>get the centroids and convert to spdf with reachcode (WBRCHCODE) as an attribute. output= SpatialPointsDataframe &ldquo;lakes&rdquo; with geographic coordinates</li>
-<li>save &ldquo;lakes&rdquo; and &ldquo;lakesPt&rdquo;</li>
+<li>save data in &ldquo;lakesSpatialData.rda&rdquo;</li>
+<li>two spatial datasets are created for the lakes in MRB1 and MRB2; both in geographic coordinates
+
+<ul>
+<li>lakes: a spatial Polygons Dataframe with the lake locations based on reachcode (WBRCHCODE)</li>
+<li>lakesPt: a spatial Points Dataframe with the lake centroids based on reachcode (WBRCHCODE)</li>
+</ul></li>
 </ul>
+
+<hr/>
+
+<p>The following code will open the formatted text version of the Rmarkdown file in a browser:
+    browseURL(&#39;<a href="https://github.com/willbmisled/ECsparrow/blob/master/data/lakesSpatialData.md&#x27;">https://github.com/willbmisled/ECsparrow/blob/master/data/lakesSpatialData.md&#39;</a>)</p>
+
+<hr/>
+
+<p>The data can be loaded into R with the following code:
+  #Get the Data (make sure you are in the &ldquo;data&rdquo; subdirectory)
+    load(url(&#39;lakesSpatialData.rda&#39;))</p>
+
+<h2>Missing reachcodes </h2>
+
+<ul>
+<li>We have spatial data (lakesPt or lakes) for all but 43 of the lakes in EC aggregated lakes files (EClakes.sqlite)</li>
+<li>The documentation of this database shows that some reachcodes were derived for lakes in MRB2.<br/></li>
+<li>These are probably the missing lakes.</li>
+<li>Here is a list of the missing reachcodes.</li>
+</ul>
+
+<pre><code>##  [1] &quot;03&quot;             &quot;01&quot;             &quot;07&quot;             &quot;11&quot;            
+##  [5] &quot;08&quot;             &quot;04&quot;             &quot;11584048&quot;       &quot;11584038&quot;      
+##  [9] &quot;11584046&quot;       &quot;11584040&quot;       &quot;03020201025512&quot; &quot;10527779&quot;      
+## [13] &quot;9737212&quot;        &quot;11564540&quot;       &quot;9737188&quot;        &quot;11563346&quot;      
+## [17] &quot;14451569&quot;       &quot;14451543&quot;       &quot;6444768&quot;        &quot;6444608&quot;       
+## [21] &quot;031300024858&quot;   &quot;21714404&quot;       &quot;6467846&quot;        &quot;6468224&quot;       
+## [25] &quot;18698303&quot;       &quot;19569682&quot;       &quot;19569598&quot;       &quot;18698893&quot;      
+## [29] &quot;21678064&quot;       &quot;6495032&quot;        &quot;22270958&quot;       &quot;6495028&quot;       
+## [33] &quot;6495030&quot;        &quot;22198215&quot;       &quot;18926164&quot;       &quot;18632968&quot;      
+## [37] &quot;18926156&quot;       &quot;18156295&quot;       &quot;22760058&quot;       &quot;22760460&quot;      
+## [41] &quot;19267368&quot;       &quot;18926182&quot;       &quot;18156275&quot;
+</code></pre>
 
 </body>
 

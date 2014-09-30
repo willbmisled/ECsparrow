@@ -1,0 +1,230 @@
+East Coast Sparrow Model Compare Methods to Aggregate Loads to Lakes-Data Step
+========================================================
+Stuff to do 
+-------------------------
+* ready to go 20140930
+* But, R2002 does not have a field for incremental load.  Need to verify if it is included in the input load so I can compare my method for calculating total lake concentrations.
+
+<!---
+use these command instead of the knit icon if you want the data and work loaded into the R workspace
+  setwd('data')
+  library(knitr)
+  knit('ECcompareSQL.rmd')
+  
+Some useful RSQLite commands
+      EC<-dbConnect(SQLite(), dbname='ECcompare.sqlite')
+      dbListTables(EC)                         # List the tables in the database
+      dbListFields(EC, "reachcodes")               # List the columns in a table
+      dbReadTable(EC, "N2002")                # Display the data in a table method1
+      dbGetQuery(EC, "SELECT * from flowlines")   # Display the data in a table method2
+-->
+
+Create ECcompare.sqlite in the "./data/" subdirectory and add the following tables
+-------------------------
+* **Table N2002**: Nitrogen predictions for flowlines in MRB1; Incremental loads reported without decay. Original data received from Anne Hoos on September 29 2014 (Sasdataset: "predict_tn_2002_mrb1_exc_incdeca.sas7bdat"" in "Corrected_predictandmassbal_tn_2002_mrb1_excludeincdecay_noatmsec.zip") and saved to C:\Bryan\EPA\Data\Sparrow\EastCoast\Predictions20140923. File read directly into R and saved as a table in ECcompare.sqlite. NOTE:Only a small subset of the available data fields are kept to reduce the size of the database (see ECcompareDataDefinitions.xls).
+* **Table R2002**: Nitrogen predictions MRB1 (N2002) aggregated to lakes by reachcode (WBRchCd). Original data received from Anne Hoos on September 29 2014 (Sasdataset: "mrb1_massbalancereservoirs_2002.sas7bdat" in “Corrected_predictandmassbal_tn_2002_mrb1_excludeincdecay_noatmsec.zip”) and saved to C:\Bryan\EPA\Data\Sparrow\EastCoast\Predictions20140923. File read directly into R and saved as a table in ECcompare.sqlite. NOTE:Only a small subset of the available data fields are kept to reduce the size of the database (see ECcompareDataDefinitions.xls). 
+* **Table "flowlines**": Links the flowline COMIDs to the MRB1 WBIDs and shows whether the flowline is an input or output to the lake or an internal reach. Imported from tblJoinFlowline_WBID_InOut (MRB1.mdb)
+* **Table "reachcodes"** links the MRB1 WaterbodyIDs (WBID) to the NHDplus waterbody Reachcodes (WBRchCd). Created (code below) from: MRB1_NHDWaterbody (WaterbodyDatabase.mdb: the MRB1 NHDplus waterbodies showing the COMIDs and Reachcodes) and tblJoinCOMID_WBID (WaterbodyDatabase.mdb: a table to match waterbody COMIDs to the Lake WBIDs). The reachcodes are used to compare values to R2002.
+* browseURL('https://github.com/willbmisled/ECsparrow/blob/master/data/ECcompareSQL.md')
+    
+```{r loadPkgs, include=FALSE, echo=FALSE, cache=TRUE}
+#options
+  options(stringsAsFactors = FALSE, scipen=9) 
+
+  #function to install (if needed) and load R packages by list
+    libs<-c('RODBC','RSQLite','sas7bdat') #list of packages to load
+  
+    installLoad<-function(pck)#user defined function
+    {
+      if(!pck%in%installed.packages()){install.packages(pck,repos="http://rweb.quant.ku.edu/cran/")}
+      require(pck, character.only = TRUE)
+    }
+  
+    lapply(libs,function(x) installLoad(x))  #Load/Install require packages
+#data source for sas files
+  EC<-dbConnect(SQLite(), dbname='ECcompare.sqlite')
+```
+
+```{r N2002, include=FALSE, echo=FALSE, cache=TRUE}
+##release some RAM
+  gc() #garbage collection: cleans up temp files
+#read the SAS file
+  N2002<-read.sas7bdat("C:/Bryan/EPA/Data/Sparrow/EastCoast/Predictions20140923/predict_tn_2002_mrb1_exc_incdeca.sas7bdat")
+#select the fields to keep
+  N2002<-N2002[,c('comid','WBRchCd','PLOAD_TOTAL','PLOAD_INC_TOTAL','concentration')]
+#rename WBRchCd to WBRCHCD
+  names(N2002)[2]<-'WBRCHCD'
+#add to ECcompare.sqlite
+  EC <- dbConnect(SQLite(), dbname='ECcompare.sqlite')
+  dbWriteTable(conn=EC,name="N2002",value=N2002,row.names=FALSE,overwrite=TRUE)
+#remove file from workspace to free memory
+  rm(N2002) 
+#view file
+  #head(dbReadTable(EC, "N2002"))
+```
+
+```{r R2002, include=FALSE, echo=FALSE, cache=TRUE}
+##release some RAM
+  gc() #garbage collection: cleans up temp files
+#read the SAS file
+  R2002<-read.sas7bdat("C:/Bryan/EPA/Data/Sparrow/EastCoast/Predictions20140923/mrb1_massbal_2002_exc_incdeca.sas7bdat")
+#select the fields to keep
+  R2002<-R2002[,c('WBRCHCODE','TN_CONC_inload','TN_massdecay','TOT_CFS',
+                  'TN_LOAD_outflow','TN_LOAD_inflow','TN_CONC_inlake')]
+#add to ECcompare.sqlite
+  dbWriteTable(conn=EC,name="R2002",value=R2002,row.names=FALSE,overwrite=TRUE)
+#remove file from workspace to free memory
+  rm(R2002) 
+```
+
+```{r flowlines, include=FALSE, echo=FALSE, cache=TRUE}
+#read data from MRB1.mdb
+  con <- odbcConnectAccess("c:/bryan/EPA/Data/WaterbodyDatabase/MRB1.mdb")
+  flowlines<- sqlQuery(con, "SELECT tblJoinFlowline_WBID_InOut.* FROM tblJoinFlowline_WBID_InOut")
+#rename WB_ID to WBID
+  names(flowlines)[1]<-'WBID'
+#add to ECcompare.sqlite
+  dbWriteTable(conn=EC,name="flowlines",value=flowlines,row.names=FALSE,overwrite=TRUE)
+```
+
+```{r reachcodes, include=FALSE, echo=FALSE, cache=TRUE}
+#get tblJoinCOMID_WBID & MRB1_NHDWaterbody
+  con <- odbcConnectAccess("c:/bryan/EPA/Data/WaterbodyDatabase/WaterbodyDatabase.mdb")
+    tblJoinCOMID_WBID<-sqlQuery(con,"SELECT tblJoinCOMID_WBID.WB_ID, tblJoinCOMID_WBID.COMID
+                                     FROM tblJoinCOMID_WBID;
+          ")
+      nrow(tblJoinCOMID_WBID)  #37192
+      length(unique(tblJoinCOMID_WBID$WB_ID))  #36274
+    MRB1_NHDWaterbody<-sqlQuery(con,"SELECT MRB1_NHDWaterbody.COMID, MRB1_NHDWaterbody.REACHCODE
+                                    FROM MRB1_NHDWaterbody;
+          ")
+      nrow(MRB1_NHDWaterbody)  #37190
+  close(con)
+
+# Temporarily add tables to ECcompare.sqlite
+  EC <- dbConnect(SQLite(), dbname='ECcompare.sqlite')
+  dbWriteTable(conn=EC,name="tblJoinCOMID_WBID",value=tblJoinCOMID_WBID,row.names=FALSE,overwrite=TRUE)
+  dbWriteTable(conn=EC,name="MRB1_NHDWaterbody",value=MRB1_NHDWaterbody,row.names=FALSE,overwrite=TRUE)
+        #head(dbReadTable(EC, "tblJoinCOMID_WBID")) 
+        #nrow(dbReadTable(EC, "tblJoinCOMID_WBID")) #37192
+        #head(dbReadTable(EC, "MRB1_NHDWaterbody")) 
+        #nrow(dbReadTable(EC, "MRB1_NHDWaterbody")) #37190
+#join tblJoinCOMID_WBID & MRB1_NHDWaterbody and write new table to database
+  a<-dbGetQuery(EC, "
+    SELECT tblJoinCOMID_WBID.WB_ID,tblJoinCOMID_WBID.COMID,MRB1_NHDWaterbody.REACHCODE
+    FROM tblJoinCOMID_WBID INNER JOIN MRB1_NHDWaterbody ON tblJoinCOMID_WBID.COMID = MRB1_NHDWaterbody.COMID
+    GROUP BY tblJoinCOMID_WBID.WB_ID, MRB1_NHDWaterbody.REACHCODE;
+    ")
+        length(a$WB_ID) #36306
+        length(unique(a$WB_ID)) #36274
+    dbWriteTable(conn=EC,name="temp",value=a,row.names=FALSE,overwrite=TRUE)
+      #head(dbReadTable(EC, "temp"))
+      #nrow(dbReadTable(EC, "temp"))  #36306
+  #count the number of gridcodes per WBID
+    a<-dbGetQuery(EC, "
+      SELECT temp.WB_ID,Count(temp.REACHCODE) AS Count
+      FROM temp
+      GROUP BY temp.WB_ID
+      ORDER BY Count(temp.REACHCODE) DESC
+    ")
+    dbWriteTable(conn=EC,name="temp1",value=a,row.names=FALSE,overwrite=TRUE)
+      #head(dbReadTable(EC, "temp1"))
+  #add gridcode to temp1 and rename columns
+    a<-dbGetQuery(EC, "
+      SELECT temp.WB_ID AS WBID,temp.COMID,temp.REACHCODE AS WBRCHCD,temp1.Count
+      FROM temp INNER JOIN temp1 ON temp.WB_ID=temp1.WB_ID
+      ORDER BY temp.WB_ID
+    ")
+    dbWriteTable(conn=EC,name="reachcodes",value=a,row.names=FALSE,overwrite=TRUE)
+      #head(dbReadTable(EC, "reachcodes"))
+  #delete the working tables  
+    dbListTables(EC) # List the tables in the database
+    dbRemoveTable(EC, "tblJoinCOMID_WBID")
+    dbRemoveTable(EC, "MRB1_NHDWaterbody")
+    dbRemoveTable(EC, "temp")
+    dbRemoveTable(EC, "temp1")
+  #read reachcodes into memory to be used in the text below
+      reachcodes<-dbGetQuery(EC, "
+        SELECT reachcodes.*
+        FROM reachcodes
+        ")
+
+#head(reachcodes)
+```
+
+Create table "reachcodes": join the WBIDs to the GRIDCODES for MRB1
+-------------------------
+* Gridcodes for each NHDplus waterbody (COMID) are in the table MRB1_NHDWaterbody in EC2014.mdb
+* The waterbody COMIDs and Gridcodes need to be joined to the WBIDs in tblJoinCOMID_WBID
+* These tables are imported into a new SQLite databse (ECcompare.sqlite)
+* SQL is used to 
+  * read the tables from ECcompare.sqlite, join them and write them to a new table.
+  * identify the WBIDs with multiple GRIDcodes 
+  * create a new table with WBID, COMID, GRIDCODE, and the Count
+  * delete the tables temp, temp1, tblJoinCOMID_WBID & MRB1_NHDWaterbody
+* we end with a single table (reachcodes) in ECcompare.sqlite
+* Evaluate reachcodes
+  * `r nrow(reachcodes)` observations
+  * `r length(unique(reachcodes$WBID))` unique WBIDs 
+  * `r length(unique(reachcodes$WBRCHCD))` unique Reachcodes
+  * `r nrow(reachcodes[is.na(reachcodes$WBRCHCD),])` COMIDs with missing reachcodes; most of these are not really lakes but there is one (a subWaterbody of lake Champlain; WBID=22302965) with a missing reachcode.
+  * `r a<-reachcodes[reachcodes$Count>1,'WBID'];length(a)` observations with multiple reachcodes representing `r length(unique(a))` WBID lakes
+* Below is a list of the lakes with multiple reachcodes (reachcodes$Count>1).  These should be removed from the anlaysis.
+
+```{r listLakes, include=TRUE, echo=FALSE, cache=TRUE}
+  reachcodes[reachcodes$Count>1,]
+```
+
+Data Definitions for table "N2002"
+-------------------------
+**Field** | **Definition**
+------------- | -------------
+**comid** | Stream Reach Identifier from NHDplus
+**WBRCHCD** | Unique identifier for a reservoir or lake,  from nhdwaterbody dbf file Aug 2011
+**PLOAD_TOTAL** | Total Flux (kg/yr)
+**PLOAD_INC_TOTAL** | Total Incremental (Inc) Flux (kg/yr)
+**concentration** | Mean Flow-Weighted Concentration (mg/L)
+
+
+Data Definitions for table "R2002"
+-------------------------
+**Field** | **Definition**
+------------- | -------------
+**TN_CONC_inload** | Tributary inflow Nitrogen Concentration, mg/L  -  this is value reported in USGS DS 820 as "Concentration of tributary inflow to receiving water", calculated as  (TN_LOAD_inflow) / (TOT_CFS * 28.32 * 1/1000000 * 86400 * 365 ).   Would have preferred to use sum of tributary inflow MAFLOWU as the demonimator but this was difficult to compute;  thus it's a slightly mixed calculation
+**TN_massdecay** | Nitrogen mass removed in the lake,  kg/yr, summed from the amount removed in each incremental reservoir segment - this is value reported in USGS DS 820 as "Load assimilated in receiving waterbody"
+**TOT_CFS** | Flow (ft3/sec): to convert to m3/yr multiply by 893593
+**TN_LOAD_outflow** | Total nitrogen load at downstream node of exit reach, in kg/yr - this is the value reported in USGS DS 820 source share table as "Total load".    Wanted to use TN_LOAD_inflow here, to be consistent with use of trib inflow info in the table that follows, but see explanation at top of this file
+**TN_LOAD_inflow** | Total nitrogen load entering lake from all tributaries and adjacent areas,  calculated from mass balance (load at downstream node of exit reach plus load removed in lake)
+**TN_CONC_inlake** | Estimated In-Lake Nitrogen Concentration of reservoir  (mg/L), calculated as TN_arealloading_outload / (hload * (1 - RetentCoeff_Nurnberg))
+
+
+Data Definitions for table "flowlines"
+-------------------------
+**Field** | **Definition**
+------------- | -------------
+**WBID** | Unique lake identifier from WaterbodyDatabase.mdb
+**SelectLake** | 1=lake not flagged; 0=at least one reach in lake has a problem (missing data, diverision, Nin not equal Nout)
+**Reach** | NHDplus identifier (COMID)
+**GridCode** | Stream Reach GridCode
+**LakeOutflow** | 1 = reach is an outflow; 0 = not an outflow
+**ReachInLake** | 1 = reach is internal to lake; 0 = not in lake
+**ReachUpstream** | 1 = reach immediately downstream of lake; 0 = not downstream
+**ReachDownstream** | 1 = reach immediately upstream of lake; 0 = not upstream
+**FlagReach** | 1 = problem with reach 
+**LakeFcode** | NHDplus Fcode for Waterbody
+**ReachFcode** | NHDplus Fcode for Stream Reach
+**HasNPData** | The original MRB1 SPARROW model had N/P data for this reach
+**Diversion** | Known diversion in the reach
+**NinEqNout** | Nitrogen Inputs to reach = outputs
+
+Data Definitions for table "reachcodes"
+-------------------------
+**Field** | **Definition**
+------------- | -------------
+**WBID** | Unique Waterbody ID
+**COMID** | NHDplus Unique Waterbody ID-sometimes there are multiple COMID for a single WBID
+**WBRCHCD** | NHDplus Waterbody Reachcode associated with each COMID; Note this was converted to numeric so leading Zero was lost.  Leading Zero can be added back or used as numeric.
+**Count** | Number of WBRchCds associated with the WBID-for analysis keep Count==1 
+
+
+
