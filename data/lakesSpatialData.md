@@ -25,27 +25,8 @@ Spatial Data
 * two spatial datasets are created for the lakes in MRB1 and MRB2; both in geographic coordinates
   * lakes: a spatial Polygons Dataframe with the lake locations based on reachcode (WBRCHCODE)
   * lakesPt: a spatial Points Dataframe with the lake centroids based on reachcode (WBRCHCODE)
+* Link to this document: https://github.com/willbmisled/ECsparrow/blob/master/data/lakesSpatialData.md
   
-
-
-************
-The following code will open the formatted text version of the Rmarkdown file in a browser:
-<<<<<<< HEAD
-    browseURL('https://github.com/willbmisled/ECsparrow/blob/master/data/lakesSpatialData.md')
-************
-The data can be loaded into R with the following code:
-  #Get the Data (make sure you are in the "data" subdirectory)
-    load('lakesSpatialData.rda')
-=======
-************
-    browseURL('https://github.com/willbmisled/ECsparrow/blob/master/data/lakesSpatialData.md')
-************
-The data can be loaded into R with the following code:
-************
-  #Get the Data (make sure you are in the "data" subdirectory)
-    load(url('lakesSpatialData.rda'))
->>>>>>> e265630f21b75e693fc6215f87103ad8ec78fed8
-
 
 
 

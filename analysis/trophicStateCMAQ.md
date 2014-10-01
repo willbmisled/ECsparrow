@@ -18,6 +18,7 @@ Some useful RSQLite commands
       dbReadTable(EC, "R2002m2")                # Display the data in a table method1
       dbGetQuery(EC, "SELECT * from R2020m1")   # Display the data in a table method2
 -->
+
 Introduction
 -------------------------
 * The East Coast SPARROW model predicts nitrogen loads to streams in MRB1 and MRB2 (HUC regions 01, 02, 03, and 06)
@@ -28,6 +29,7 @@ Introduction
   * Interpolated depostion based on 2002 data
   * Predicted deposition for 2020 following changes to air rules
 * Our goal is to evaluate changes in lake trophic state between 2002 and 2020 based on the EC SPARROW model prediction for nitrogen loads to the lakes in MRB1 and MRB2
+* Link to this document: https://github.com/willbmisled/ECsparrow/blob/master/analysis/trophicStateCMAQ.md
 
 Objectives
 -------------------------
@@ -47,7 +49,6 @@ Data Sources
   * **R2020m2**: N predictions based on 2020 conditions for lakes in MRB2
 * Polygon (lakes) and point (lakesPt) locations of the lakes are available in '/data/lakesSpatialData.rda'.  
 * Data Definitions: https://github.com/willbmisled/ECsparrow/blob/master/data/lakesSpatialData.md
-
 
 
 
@@ -94,7 +95,3 @@ Results
 
 ![plot of chunk lakeChg](figure/lakeChg.png) 
 
-
-
-
-  

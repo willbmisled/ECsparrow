@@ -3,11 +3,7 @@ East Coast Sparrow Model Compare Methods to Aggregate Loads to Lakes-Data Step
 Stuff to do 
 -------------------------
 * ready to go 20140930
-<<<<<<< HEAD
 * But, R2002 does not have a field for incremental load.  Need to verify if it is included in the input load so I can compare my method for calculating total lake concentrations.
-=======
-* But, R2002 does not have a field for incremental load.  I can still compare my method for calculating inflow and outflow loads but not total lake concentrations.
->>>>>>> e265630f21b75e693fc6215f87103ad8ec78fed8
 
 <!---
 use these command instead of the knit icon if you want the data and work loaded into the R workspace
@@ -29,10 +25,7 @@ Create ECcompare.sqlite in the "./data/" subdirectory and add the following tabl
 * **Table R2002**: Nitrogen predictions MRB1 (N2002) aggregated to lakes by reachcode (WBRchCd). Original data received from Anne Hoos on September 29 2014 (Sasdataset: "mrb1_massbalancereservoirs_2002.sas7bdat" in “Corrected_predictandmassbal_tn_2002_mrb1_excludeincdecay_noatmsec.zip”) and saved to C:\Bryan\EPA\Data\Sparrow\EastCoast\Predictions20140923. File read directly into R and saved as a table in ECcompare.sqlite. NOTE:Only a small subset of the available data fields are kept to reduce the size of the database (see ECcompareDataDefinitions.xls). 
 * **Table "flowlines**": Links the flowline COMIDs to the MRB1 WBIDs and shows whether the flowline is an input or output to the lake or an internal reach. Imported from tblJoinFlowline_WBID_InOut (MRB1.mdb)
 * **Table "reachcodes"** links the MRB1 WaterbodyIDs (WBID) to the NHDplus waterbody Reachcodes (WBRchCd). Created (code below) from: MRB1_NHDWaterbody (WaterbodyDatabase.mdb: the MRB1 NHDplus waterbodies showing the COMIDs and Reachcodes) and tblJoinCOMID_WBID (WaterbodyDatabase.mdb: a table to match waterbody COMIDs to the Lake WBIDs). The reachcodes are used to compare values to R2002.
-<<<<<<< HEAD
-* browseURL('https://github.com/willbmisled/ECsparrow/blob/master/data/ECcompareSQL.md')
-=======
->>>>>>> e265630f21b75e693fc6215f87103ad8ec78fed8
+* Link to this document: https://github.com/willbmisled/ECsparrow/blob/master/data/ECcompareSQL.md
     
 ```{r loadPkgs, include=FALSE, echo=FALSE, cache=TRUE}
 #options
