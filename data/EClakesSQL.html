@@ -144,34 +144,26 @@ hr {
 <body>
 <h1>East Coast Sparrow Model Data</h1>
 
-<<<<<<< HEAD
 <h2>Stuff to do </h2>
 
 <ul>
-<li>ready to go 20140930
-&lt;!&mdash;
-use these command instead of the knit icon if you want the data and work loaded into the R workspace
-First make sure you are in the data directory: 
-setwd(&#39;data&#39;)
-library(knitr)
-knit(&#39;EClakesSQL.rmd&#39;)</li>
+<li>ready to go 20140930</li>
 </ul>
 
-<p>Some useful RSQLite commands
-      EC&lt;-dbConnect(SQLite(), dbname=&#39;EClakes.sqlite&#39;)
-      dbListTables(EC)                         # List the tables in the database
-      dbListFields(EC, &ldquo;R2020m1&rdquo;)               # List the columns in a table
-      dbReadTable(EC, &ldquo;R2020m2&rdquo;)                # Display the data in a table method1
-      dbGetQuery(EC, &ldquo;SELECT * from R2020m1&rdquo;)   # Display the data in a table method2
-&ndash;&gt;</p>
-=======
 <!---
 use these command instead of the knit icon if you want the data and work loaded into the R workspace
-First make sure you are in the data directory: setwd('data')
+First make sure you are in the data directory: 
+  setwd('data')
   library(knitr)
   knit('EClakesSQL.rmd')
+  
+Some useful RSQLite commands
+      EC<-dbConnect(SQLite(), dbname='EClakes.sqlite')
+      dbListTables(EC)                         # List the tables in the database
+      dbListFields(EC, "R2020m1")               # List the columns in a table
+      dbReadTable(EC, "R2020m2")                # Display the data in a table method1
+      dbGetQuery(EC, "SELECT * from R2020m1")   # Display the data in a table method2
 -->
->>>>>>> e265630f21b75e693fc6215f87103ad8ec78fed8
 
 <h2>Create EClakes.sqlite in the &ldquo;./data/&rdquo; subdirectory and add the following tables</h2>
 
@@ -180,10 +172,7 @@ First make sure you are in the data directory: setwd('data')
 <li><p><strong>Table R2002m2</strong>: Nitrogen predictions for MRB2 aggregated to lakes by reachcode (WBRchCd). Original data received from Anne Hoos on September 23 2014 (Sasdataset: &ldquo;mrb2_massbalancereservoirs_2002.sas7bdat&rdquo; in “forBryan_MRB2_Nitrogen_2002vs2020.zip”) and saved to C:\Bryan\EPA\Data\Sparrow\EastCoast\Predictions20140923. File read directly into R and saved as a table in EClakes.sqlite.</p></li>
 <li><p><strong>Table R2020m1</strong>: Nitrogen predictions for MRB1 aggregated to lakes by reachcode (WBRchCd). Original data received from Anne Hoos on September 11 2014 (Sasdataset: &ldquo;mrb1_massbalancereservoirs_2020.sas7bdat&rdquo; in “forBryan_corrected_MRB1_Nitrogen_2002vs2020.zip”) and saved to C:\Bryan\EPA\Data\Sparrow\EastCoast\Predictions20140911. File read directly into R and saved as a table in EClakes.sqlite.</p></li>
 <li><p><strong>Table R2020m2</strong>: Nitrogen predictions for MRB2 aggregated to lakes by reachcode (WBRchCd). Original data received from Anne Hoos on September 23 2014 (Sasdataset: &ldquo;mrb2_massbalancereservoirs_2020.sas7bdat&rdquo; in “forBryan_MRB2_Nitrogen_2002vs2020.zip”) and saved to C:\Bryan\EPA\Data\Sparrow\EastCoast\Predictions20140923. File read directly into R and saved as a table in EClakes.sqlite.</p></li>
-<<<<<<< HEAD
-<li><p>browseURL(&#39;<a href="https://github.com/willbmisled/ECsparrow/blob/master/data/EClakesSQL.md&#x27;">https://github.com/willbmisled/ECsparrow/blob/master/data/EClakesSQL.md&#39;</a>)</p></li>
-=======
->>>>>>> e265630f21b75e693fc6215f87103ad8ec78fed8
+<li><p>Link to this document: <a href="https://github.com/willbmisled/ECsparrow/blob/master/data/EClakesSQL.md">https://github.com/willbmisled/ECsparrow/blob/master/data/EClakesSQL.md</a></p></li>
 </ul>
 
 <h2>Data Table Descriptions</h2>

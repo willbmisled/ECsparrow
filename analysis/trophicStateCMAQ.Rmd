@@ -1,29 +1,15 @@
-<<<<<<< HEAD
 East Coast SPARROW: Lake Trophic State Change Analysis for the CMAQ Scenario
 ========================================================
 Stuff to do 
 -------------------------
 * missing flow (TOT_CFS) data for MRB2
-=======
-Title
-========================================================
-Stuff to do 
--------------------------
-* this needs to be completely reworked
-* use the data from EClakes.sqlite
-* Check that the names WBRCHCODE (all caps) and WBID (not WB_ID) are used consistently
->>>>>>> e265630f21b75e693fc6215f87103ad8ec78fed8
 
 <!---
 use these command instead of the knit icon if you want the data and work loaded into the R workspace
 First make sure you are in the analysis directory: 
   setwd('analysis')
   library(knitr)
-<<<<<<< HEAD
   knit('trophicStateCMAQ.rmd')
-=======
-  knit('EClakesSQL.rmd')
->>>>>>> e265630f21b75e693fc6215f87103ad8ec78fed8
   
 Some useful RSQLite commands
       EC<-dbConnect(SQLite(), dbname='../data/EClakes.sqlite')
@@ -32,7 +18,7 @@ Some useful RSQLite commands
       dbReadTable(EC, "R2002m2")                # Display the data in a table method1
       dbGetQuery(EC, "SELECT * from R2020m1")   # Display the data in a table method2
 -->
-<<<<<<< HEAD
+
 Introduction
 -------------------------
 * The East Coast SPARROW model predicts nitrogen loads to streams in MRB1 and MRB2 (HUC regions 01, 02, 03, and 06)
@@ -62,41 +48,25 @@ Data Sources
   * **R2020m2**: N predictions based on 2020 conditions for lakes in MRB2
 * Polygon (lakes) and point (lakesPt) locations of the lakes are available in '/data/lakesSpatialData.rda'.  
 * Data Definitions: https://github.com/willbmisled/ECsparrow/blob/master/data/lakesSpatialData.md
-=======
-
->>>>>>> e265630f21b75e693fc6215f87103ad8ec78fed8
 
 ```{r loadPkgs, include=FALSE, echo=FALSE, cache=FALSE}
   options(stringsAsFactors = FALSE, scipen=9) 
 
-<<<<<<< HEAD
-#function to install (if needed) and load R packages by list
-=======
-
   #function to install (if needed) and load R packages by list
->>>>>>> e265630f21b75e693fc6215f87103ad8ec78fed8
     libs<-c('RSQLite','rgdal','maptools','RODBC') #list of packages to load
   
     installLoad<-function(pck)#user defined function
     {
       if(!pck%in%installed.packages()){install.packages(pck,repos="http://rweb.quant.ku.edu/cran/")}
       require(pck, character.only = TRUE)
-<<<<<<< HEAD
-}
-=======
     }
->>>>>>> e265630f21b75e693fc6215f87103ad8ec78fed8
   
     lapply(libs,function(x) installLoad(x))  #Load/Install require packages
 ```
 
 ```{r data, include=FALSE, echo=FALSE, cache=TRUE}
 #get the lakes spatial data
-<<<<<<< HEAD
     load('../data/lakesSpatialData.rda')
-=======
-    load('./data/lakesSpatialData.rda')
->>>>>>> e265630f21b75e693fc6215f87103ad8ec78fed8
 
 #transform lakesPT to albers 
   #ESRI USA Contiguous Albers Equal Area Conic (used by MRB1 WBIDLakes as AlbersX and AlbersY)
@@ -105,7 +75,6 @@ Data Sources
   lakesPtAlbers<-spTransform(lakesPt,Albers)
 
 #get the estimates of N loads under the CMAQ Scenarios
-<<<<<<< HEAD
   #connect to EClakes.sqlite
       EC<-dbConnect(SQLite(), dbname='../data/EClakes.sqlite')
       dbListTables(EC) # List the tables in the database
@@ -141,9 +110,8 @@ Data Sources
 #Check number of observations and order of reachcode
   nrow(N2002)  #41566
   nrow(N2020)  #41566
-  all.equal(N2002$WBRCHCODE,N2020$WBRCHCODE)
+  all.equal(N2002$WBRCHCODE,N2020$WBRCHCODE) #same order
 ```
-
 
 ```{r TSNtable, include=FALSE, echo=FALSE, cache=TRUE}
 #select TS criteria
@@ -151,56 +119,16 @@ Data Sources
 #function to assign Trophic State in lakes based on Nitrogen thresholds
   #' criteria=thresholds between the trophic states; default=criteriaNLA
   #' conc=which of 3 estimates of lake concentration to use; default=N2002$TN_CONC_inlake
-  
-  estTSN<-function(criteria=criteriaNLA,conc=N2002$TN_CONC_inlake){ 
-=======
-  con <- odbcConnectAccess('C:/Bryan/EPA/Data/Sparrow/EastCoast/EC2014.mdb')
-   L2002 <- sqlQuery(con, "SELECT mrb1_massbalancereservoirs_2002.* FROM mrb1_massbalancereservoirs_2002")
-   L2020 <- sqlQuery(con, "SELECT mrb1_massbalancereservoirs_2020.* FROM mrb1_massbalancereservoirs_2020")
-  close(con)
-  
-#add outflow concentration following same methods as Ann and Rich (see ECnote.rmd)
-  L2002$TN_CONC_outload<-L2002$TN_LOAD_outflow/ (L2002$TOT_CFS * 28.32 * 1/1000000 * 86400 * 365 )
-  L2020$TN_CONC_outload<-L2020$TN_LOAD_outflow/ (L2020$TOT_CFS * 28.32 * 1/1000000 * 86400 * 365 )
-  
-#No missing values
-  table(is.na(L2002$TN_CONC_outload))
-  table(is.na(L2020$TN_CONC_outload))
-  table(is.na(L2002$TN_CONC_inload))
-  table(is.na(L2020$TN_CONC_inload))
-  table(is.na(L2002$TN_CONC_inlake))
-  table(is.na(L2020$TN_CONC_inlake))
-  
-#data in same order? No but it can be fixed
-  nrow(L2002)
-  nrow(L2020)
-  all.equal(L2002$WBRCHCODE,L2020$WBRCHCODE)
-  
-  L2002<-L2002[order(L2002$WBRCHCODE),]
-  L2020<-L2020[order(L2020$WBRCHCODE),]
-  all.equal(L2002$WBRCHCODE,L2020$WBRCHCODE)
-```
-
-
-```{r tblTSN, include=FALSE, echo=FALSE, cache=TRUE}
-#select TS criteria
-  criteriaNLA<-c(.35,.75,1.4)  #mg/l
-#function to assign Trophic State
   estTSN<-function(criteria=criteriaNLA,conc=L2002$TN_CONC_outload){ 
->>>>>>> e265630f21b75e693fc6215f87103ad8ec78fed8
     TSN<-factor(rep('Oligo',length(conc)),ordered=T,levels=c("Oligo","Meso","Eu","Hyper"))
     TSN[conc>criteria[1]]<-'Meso'
     TSN[conc>criteria[2]]<-'Eu'
     TSN[conc>criteria[3]]<-'Hyper'
-<<<<<<< HEAD
     TSN[is.na(conc)]<-NA
-=======
->>>>>>> e265630f21b75e693fc6215f87103ad8ec78fed8
   return(TSN)
   }
 
 #Estimate trophic state for each lake  
-<<<<<<< HEAD
   TSN<-data.frame(WBRCHCODE=N2002$WBRCHCODE)
   TSN$out2002<-estTSN(conc=N2002$TN_CONC_outload)
   TSN$out2020<-estTSN(conc=N2020$TN_CONC_outload)
@@ -211,7 +139,6 @@ Data Sources
   TSN$lake2002<-estTSN(conc=N2002$TN_CONC_inlake)
   TSN$lake2020<-estTSN(conc=N2020$TN_CONC_inlake)
     TSN$lakeChg<-as.numeric(TSN$lake2020)-as.numeric(TSN$lake2002)
- 
    
 #create a table of trophic state totals for each TN estimate
   tblTSN<-function(df=TSN,x='out'){
@@ -234,45 +161,11 @@ Data Sources
     return(z)
   } 
 
-#create table
-=======
-  TSN<-data.frame(WBRCHCODE=L2002$WBRCHCODE)
-  TSN$out2002<-estTSN(conc=L2002$TN_CONC_outload)
-  TSN$out2020<-estTSN(conc=L2020$TN_CONC_outload)
-    TSN$outChg<-as.numeric(TSN$out2020)-as.numeric(TSN$out2002)
-  TSN$in2002<-estTSN(conc=L2002$TN_CONC_inload)
-  TSN$in2020<-estTSN(conc=L2020$TN_CONC_inload)
-    TSN$inChg<-as.numeric(TSN$in2020)-as.numeric(TSN$in2002)
-  TSN$lake2002<-estTSN(conc=L2002$TN_CONC_inlake)
-  TSN$lake2020<-estTSN(conc=L2020$TN_CONC_inlake)
-    TSN$lakeChg<-as.numeric(TSN$lake2020)-as.numeric(TSN$lake2002)
-  
-  
-  tblTSN<-function(df=TSN,x='out'){
-    print(table(df[,paste(x,'2020',sep='')],df[,paste(x,'2002',sep='')]))
-    print(table(df[,paste(x,'2002',sep='')]))
-    print(table(df[,paste(x,'2020',sep='')]))
-    print(table(df[,paste(x,'Chg',sep='')]))
-  }  
-   
-   
-#create a table of trophic state totals for each TN estimate
-  tblTSN<-function(df=TSN,x='out'){
-    z<-data.frame(Year=c(2002,2020),estimate=c(x,x))
-    a<-as.data.frame(table(df[,paste(x,'2002',sep='')]))[,2]
-    b<-as.data.frame(table(df[,paste(x,'2020',sep='')]))[,2]
-    a<-rbind(a,b)
-    z<-cbind(z,a)
-    z[2,'improved']<-as.data.frame(table(df[,paste(x,'Chg',sep='')]))[1,2]
-    names(z)[3:6]<-c('Oligo','Meso','Eu','Hyper')
-    return(z)
-  }  
->>>>>>> e265630f21b75e693fc6215f87103ad8ec78fed8
-   a<-rbind(tblTSN(x='out'),
-   tblTSN(x='in'),
-   tblTSN(x='lake'))
-   row.names(a)<-1:6
-<<<<<<< HEAD
+#build the table
+  a<-rbind(tblTSN(x='out'),
+  tblTSN(x='in'),
+  tblTSN(x='lake'))
+  row.names(a)<-1:6
   TSNtable<-a
   #TSNtable
 ```
@@ -340,36 +233,3 @@ Results
   #turn warnings back on
       options(warn=0)
 ```
-
-
-
-=======
-  tblTSN<-a
-  tblTSN
-```
-
-
-#merge coordinates data with TSN
-  a<-data.frame(coordinates(lakesPtAlbers)) #get the coordinates
-  a$WBRCHCODE<-as.numeric(row.names(a))
-  TSN<-merge(TSN,a,by='WBRCHCODE',all.x=TRUE)
-#convert to spatial points data.frame
-  a<-na.exclude(TSN)
-  coords<-data.frame(x=a$x,y=a$y)
-  TSNpts<-SpatialPointsDataFrame(coords,a)  #convert to spdf
-
-#plot changes  
-  plotChg<-function(est='outChg',CEX=.2){
-    plot(TSNpts,col='grey',pch=16,cex=CEX)
-    plot(TSNpts[TSNpts@data[,est]==-1,],col='blue',pch=16,add=T,cex=CEX)
-    title(est)
-  }
-
-windows(10.5,7)
-par(mfrow=c(1,3))
-  plotChg('outChg')
-  plotChg('inChg')
-  plotChg('lakeChg')
-  
->>>>>>> e265630f21b75e693fc6215f87103ad8ec78fed8
-  
