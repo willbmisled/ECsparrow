@@ -26,8 +26,8 @@ Introduction
   * Moorman, M.C., Hoos, A.B., Bricker, S.B., Moore, R.B., García, A.M., and Ator, S.W., 2014, Nutrient load summaries for major lakes and estuaries of the Eastern United States, 2002: U.S. Geological Survey Data Series 820, 94 p.,  http://dx.doi.org/10.3133/ds820.
 * Estimates of atmospheric deposition of nitrogen are derived from the CMAQ (Community Multi-scale Air Quality Model) model (http://www.epa.gov/AMD/Research/RIA/cmaq.html)
 * The CMAQ model has:
-  * Interpolated depostion based on 2002 data
-  * Predicted deposition for 2020 following changes to air rules
+  * Interpolated N deposition based on 2002 data
+  * Predicted N deposition for 2020 following changes to air rules
 * Our goal is to evaluate changes in lake trophic state between 2002 and 2020 based on the EC SPARROW model prediction for nitrogen loads to the lakes in MRB1 and MRB2
 * Link to this document: https://github.com/willbmisled/ECsparrow/blob/master/analysis/trophicStateCMAQ.md
 
