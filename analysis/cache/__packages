@@ -1,0 +1,10 @@
+base
+DBI
+knitr
+maptools
+rgdal
+rgeos
+RODBC
+RSQLite
+sas7bdat
+sp

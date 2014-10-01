@@ -34,7 +34,7 @@ The following code will open the formatted text version of the Rmarkdown file in
 ************
 The data can be loaded into R with the following code:
   #Get the Data (make sure you are in the "data" subdirectory)
-    load(url('lakesSpatialData.rda'))
+    load('lakesSpatialData.rda')
 
 
 

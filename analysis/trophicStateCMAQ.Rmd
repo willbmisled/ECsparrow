@@ -1,17 +1,15 @@
-Title
+East Coast SPARROW: Lake Trophic State Change Analysis for the CMAQ Scenario
 ========================================================
 Stuff to do 
 -------------------------
-* this needs to be completely reworked
-* use the data from EClakes.sqlite
-* Check that the names WBRCHCODE (all caps) and WBID (not WB_ID) are used consistently
+* missing flow (TOT_CFS) data for MRB2
 
 <!---
 use these command instead of the knit icon if you want the data and work loaded into the R workspace
 First make sure you are in the analysis directory: 
   setwd('analysis')
   library(knitr)
-  knit('EClakesSQL.rmd')
+  knit('trophicStateCMAQ.rmd')
   
 Some useful RSQLite commands
       EC<-dbConnect(SQLite(), dbname='../data/EClakes.sqlite')
@@ -20,27 +18,54 @@ Some useful RSQLite commands
       dbReadTable(EC, "R2002m2")                # Display the data in a table method1
       dbGetQuery(EC, "SELECT * from R2020m1")   # Display the data in a table method2
 -->
+Introduction
+-------------------------
+* The East Coast SPARROW model predicts nitrogen loads to streams in MRB1 and MRB2 (HUC regions 01, 02, 03, and 06)
+* Information on the East Coast Model can be found here:
+  * Moorman, M.C., Hoos, A.B., Bricker, S.B., Moore, R.B., García, A.M., and Ator, S.W., 2014, Nutrient load summaries for major lakes and estuaries of the Eastern United States, 2002: U.S. Geological Survey Data Series 820, 94 p.,  http://dx.doi.org/10.3133/ds820.
+* Estimates of atmospheric deposition of nitrogen are derived from the CMAQ (Community Multi-scale Air Quality Model) model (http://www.epa.gov/AMD/Research/RIA/cmaq.html)
+* The CMAQ model has:
+  * Interpolated depostion based on 2002 data
+  * Predicted deposition for 2020 following changes to air rules
+* Our goal is to evaluate changes in lake trophic state between 2002 and 2020 based on the EC SPARROW model prediction for nitrogen loads to the lakes in MRB1 and MRB2
 
+Objectives
+-------------------------
+* Estimate trophic state of lakes based on 2002 conditions
+* Estimate trophic state of lakes based on 2020 conditions
+* Analyze changes in trophic state between 2002 and 2020
+* Map changes in trophic state
+
+Data Sources
+-------------------------
+* The 2002 and 2020 sparrow N predictions aggregated to lakes for MRB1 and MRB2 are in: '/data/EClakes.sqlite'. 
+* Data Definitions: https://github.com/willbmisled/ECsparrow/blob/master/data/EClakesSQL.md
+* Includes the following tables:
+  * **R2002m1**: N predictions based on 2002 conditions for lakes in MRB1
+  * **R2020m1**: N predictions based on 2020 conditions for lakes in MRB1
+  * **R2002m2**: N predictions based on 2002 conditions for lakes in MRB2
+  * **R2020m2**: N predictions based on 2020 conditions for lakes in MRB2
+* Polygon (lakes) and point (lakesPt) locations of the lakes are available in '/data/lakesSpatialData.rda'.  
+* Data Definitions: https://github.com/willbmisled/ECsparrow/blob/master/data/lakesSpatialData.md
 
 ```{r loadPkgs, include=FALSE, echo=FALSE, cache=FALSE}
   options(stringsAsFactors = FALSE, scipen=9) 
 
-
-  #function to install (if needed) and load R packages by list
+#function to install (if needed) and load R packages by list
     libs<-c('RSQLite','rgdal','maptools','RODBC') #list of packages to load
   
     installLoad<-function(pck)#user defined function
     {
       if(!pck%in%installed.packages()){install.packages(pck,repos="http://rweb.quant.ku.edu/cran/")}
       require(pck, character.only = TRUE)
-    }
+}
   
     lapply(libs,function(x) installLoad(x))  #Load/Install require packages
 ```
 
 ```{r data, include=FALSE, echo=FALSE, cache=TRUE}
 #get the lakes spatial data
-    load('./data/lakesSpatialData.rda')
+    load('../data/lakesSpatialData.rda')
 
 #transform lakesPT to albers 
   #ESRI USA Contiguous Albers Equal Area Conic (used by MRB1 WBIDLakes as AlbersX and AlbersY)
@@ -49,107 +74,168 @@ Some useful RSQLite commands
   lakesPtAlbers<-spTransform(lakesPt,Albers)
 
 #get the estimates of N loads under the CMAQ Scenarios
-  con <- odbcConnectAccess('C:/Bryan/EPA/Data/Sparrow/EastCoast/EC2014.mdb')
-   L2002 <- sqlQuery(con, "SELECT mrb1_massbalancereservoirs_2002.* FROM mrb1_massbalancereservoirs_2002")
-   L2020 <- sqlQuery(con, "SELECT mrb1_massbalancereservoirs_2020.* FROM mrb1_massbalancereservoirs_2020")
-  close(con)
+  #connect to EClakes.sqlite
+      EC<-dbConnect(SQLite(), dbname='../data/EClakes.sqlite')
+      dbListTables(EC) # List the tables in the database
+      dbListFields(EC,"R2002m1")               # List the columns in a table
+      dbListFields(EC,"R2002m2")               # List the columns in a table
+  #get the 2002 estimates
+    a<-dbGetQuery(EC, "SELECT WBRCHCODE,TOT_CFS,TN_LOAD_inflow,TN_LOAD_outflow,
+                              TN_CONC_inlake,TN_CONC_inload from R2002m1") 
+    b<-dbGetQuery(EC, "SELECT WBRCHCODE,TN_LOAD_inflow,TN_LOAD_outflow,
+                              TN_CONC_inlake,TN_CONC_inload from R2002m2") #missing TOT_CFS
+        b$TOT_CFS<-NA
+    N2002<-rbind(a,b)
+  #get the 2020 estimates
+    a<-dbGetQuery(EC, "SELECT WBRCHCODE,TOT_CFS,TN_LOAD_inflow,TN_LOAD_outflow,
+                              TN_CONC_inlake,TN_CONC_inload from R2020m1") 
+    b<-dbGetQuery(EC, "SELECT WBRCHCODE,TN_LOAD_inflow,TN_LOAD_outflow,
+                              TN_CONC_inlake,TN_CONC_inload from R2020m2") #missing TOT_CFS
+        b$TOT_CFS<-NA
+    N2020<-rbind(a,b)
+
+#add outflow concentrations (for MRB1) following same methods as Ann and Rich (see ECnote.rmd)
+  N2002$TN_CONC_outload<-N2002$TN_LOAD_outflow/ (N2002$TOT_CFS * 28.32 * 1/1000000 * 86400 * 365 )
+  N2020$TN_CONC_outload<-N2020$TN_LOAD_outflow/ (N2020$TOT_CFS * 28.32 * 1/1000000 * 86400 * 365 )
   
-#add outflow concentration following same methods as Ann and Rich (see ECnote.rmd)
-  L2002$TN_CONC_outload<-L2002$TN_LOAD_outflow/ (L2002$TOT_CFS * 28.32 * 1/1000000 * 86400 * 365 )
-  L2020$TN_CONC_outload<-L2020$TN_LOAD_outflow/ (L2020$TOT_CFS * 28.32 * 1/1000000 * 86400 * 365 )
+#Check for missing values
+  table(is.na(N2002$TN_CONC_outload))   #missing = 23681; MRB2
+  table(is.na(N2020$TN_CONC_outload))   #missing = 23681; MRB2
+  table(is.na(N2002$TN_CONC_inload))    #no missing values
+  table(is.na(N2020$TN_CONC_inload))    #no missing values
+  table(is.na(N2002$TN_CONC_inlake))    #no missing values
+  table(is.na(N2020$TN_CONC_inlake))    #no missing values
   
-#No missing values
-  table(is.na(L2002$TN_CONC_outload))
-  table(is.na(L2020$TN_CONC_outload))
-  table(is.na(L2002$TN_CONC_inload))
-  table(is.na(L2020$TN_CONC_inload))
-  table(is.na(L2002$TN_CONC_inlake))
-  table(is.na(L2020$TN_CONC_inlake))
-  
-#data in same order? No but it can be fixed
-  nrow(L2002)
-  nrow(L2020)
-  all.equal(L2002$WBRCHCODE,L2020$WBRCHCODE)
-  
-  L2002<-L2002[order(L2002$WBRCHCODE),]
-  L2020<-L2020[order(L2020$WBRCHCODE),]
-  all.equal(L2002$WBRCHCODE,L2020$WBRCHCODE)
+#Check number of observations and order of reachcode
+  nrow(N2002)  #41566
+  nrow(N2020)  #41566
+  all.equal(N2002$WBRCHCODE,N2020$WBRCHCODE)
 ```
 
 
-```{r tblTSN, include=FALSE, echo=FALSE, cache=TRUE}
+```{r TSNtable, include=FALSE, echo=FALSE, cache=TRUE}
 #select TS criteria
   criteriaNLA<-c(.35,.75,1.4)  #mg/l
-#function to assign Trophic State
-  estTSN<-function(criteria=criteriaNLA,conc=L2002$TN_CONC_outload){ 
+#function to assign Trophic State in lakes based on Nitrogen thresholds
+  #' criteria=thresholds between the trophic states; default=criteriaNLA
+  #' conc=which of 3 estimates of lake concentration to use; default=N2002$TN_CONC_inlake
+  
+  estTSN<-function(criteria=criteriaNLA,conc=N2002$TN_CONC_inlake){ 
     TSN<-factor(rep('Oligo',length(conc)),ordered=T,levels=c("Oligo","Meso","Eu","Hyper"))
     TSN[conc>criteria[1]]<-'Meso'
     TSN[conc>criteria[2]]<-'Eu'
     TSN[conc>criteria[3]]<-'Hyper'
+    TSN[is.na(conc)]<-NA
   return(TSN)
   }
 
 #Estimate trophic state for each lake  
-  TSN<-data.frame(WBRCHCODE=L2002$WBRCHCODE)
-  TSN$out2002<-estTSN(conc=L2002$TN_CONC_outload)
-  TSN$out2020<-estTSN(conc=L2020$TN_CONC_outload)
+  TSN<-data.frame(WBRCHCODE=N2002$WBRCHCODE)
+  TSN$out2002<-estTSN(conc=N2002$TN_CONC_outload)
+  TSN$out2020<-estTSN(conc=N2020$TN_CONC_outload)
     TSN$outChg<-as.numeric(TSN$out2020)-as.numeric(TSN$out2002)
-  TSN$in2002<-estTSN(conc=L2002$TN_CONC_inload)
-  TSN$in2020<-estTSN(conc=L2020$TN_CONC_inload)
+  TSN$in2002<-estTSN(conc=N2002$TN_CONC_inload)
+  TSN$in2020<-estTSN(conc=N2020$TN_CONC_inload)
     TSN$inChg<-as.numeric(TSN$in2020)-as.numeric(TSN$in2002)
-  TSN$lake2002<-estTSN(conc=L2002$TN_CONC_inlake)
-  TSN$lake2020<-estTSN(conc=L2020$TN_CONC_inlake)
+  TSN$lake2002<-estTSN(conc=N2002$TN_CONC_inlake)
+  TSN$lake2020<-estTSN(conc=N2020$TN_CONC_inlake)
     TSN$lakeChg<-as.numeric(TSN$lake2020)-as.numeric(TSN$lake2002)
-  
-  
-  tblTSN<-function(df=TSN,x='out'){
-    print(table(df[,paste(x,'2020',sep='')],df[,paste(x,'2002',sep='')]))
-    print(table(df[,paste(x,'2002',sep='')]))
-    print(table(df[,paste(x,'2020',sep='')]))
-    print(table(df[,paste(x,'Chg',sep='')]))
-  }  
-   
+ 
    
 #create a table of trophic state totals for each TN estimate
   tblTSN<-function(df=TSN,x='out'){
-    z<-data.frame(Year=c(2002,2020),estimate=c(x,x))
-    a<-as.data.frame(table(df[,paste(x,'2002',sep='')]))[,2]
-    b<-as.data.frame(table(df[,paste(x,'2020',sep='')]))[,2]
-    a<-rbind(a,b)
-    z<-cbind(z,a)
-    z[2,'improved']<-as.data.frame(table(df[,paste(x,'Chg',sep='')]))[1,2]
-    names(z)[3:6]<-c('Oligo','Meso','Eu','Hyper')
+    z<-data.frame(Year=c(2002,2020),Estimate=c(x,x))
+    a<-as.data.frame(table(df[,paste(x,'2002',sep='')],useNA='ifany'))[,2]
+    b<-as.data.frame(table(df[,paste(x,'2020',sep='')],useNA='ifany'))[,2]
+    a<-data.frame(rbind(a,b))
+    #add column for missing values 
+      if(ncol(a)==4) a[,5]<-0 
+    #rename columns
+    names(a)<-c('Oligo','Meso','Eu','Hyper','Missing')
+    #add info
+      z<-cbind(z,a)
+    #add column for improved lakes
+      chg<-na.exclude(df[,paste(x,'Chg',sep='')])
+      z[2,'Improved']<-length(chg[chg<0])
+    #add column for deteriorated lakes
+      chg<-na.exclude(df[,paste(x,'Chg',sep='')])
+      z[2,'Worse']<-length(chg[chg>0])    
     return(z)
-  }  
+  } 
+
+#create table
    a<-rbind(tblTSN(x='out'),
    tblTSN(x='in'),
    tblTSN(x='lake'))
    row.names(a)<-1:6
-  tblTSN<-a
-  tblTSN
+  TSNtable<-a
+  #TSNtable
+```
+
+```{r TSNmap, include=FALSE, echo=FALSE, cache=TRUE}
+    #merge coordinates data with TSN
+      a<-data.frame(coordinates(lakesPtAlbers)) #get the coordinates
+      a$WBRCHCODE<-lakesPtAlbers$WBRCHCODE
+      TSN<-merge(TSN,a,by='WBRCHCODE',all.x=TRUE)
+    #convert to spatial points data.frame
+      a<-subset(TSN,!is.na(TSN$x))  #eliminate lakes without spatial data
+      coords<-data.frame(x=a$x,y=a$y)
+      TSNpts<-SpatialPointsDataFrame(coords,a)  #convert to spdf
+
+#plot changes 
+  plotChg<-function(est='outChg',CEX=.2){
+    #plot all lakes
+      plot(TSNpts,col='grey',pch=16,cex=CEX) 
+    #plot lakes that have improved
+      chg<-subset(TSNpts,TSNpts@data[,est]==-1 & !is.na(TSNpts$x))
+      plot(chg,col='blue',pch=16,add=T,cex=CEX)
+    #plot lakes that got worse (just 2)
+      chg<-subset(TSNpts,TSNpts@data[,est]==1 & !is.na(TSNpts$x))
+      if(length(chg)>0) plot(chg,col='red',pch=16,add=T,cex=CEX*5)
+    #add title and legend
+      title(est)
+      if(length(chg)>0){ legend('topleft',legend=c('No Change','Better','Worse'),
+                               pch=16,col=c('grey','blue','red'),bty="n")
+      }else{
+        legend('topleft',legend=c('No Change','Better'),
+                               pch=16,col=c('grey','blue'),bty="n")
+        }
+  }
+``` 
+
+Results
+-------------------------
+* Lake trophic state was estimated  based on the inflow, outflow, and in-lake Nitrogen Concentrations for base conditions (2002) and the changes expected by 2020 under the CMAQ scenario.
+* Trophic state for inflow and in-lake concentrations were calculated by the USGS for all lakes in MRB1 and MRB2
+* Trophic state for outflow concentrations were done here for MRB1 but not MRB2 as we don't have the flow data (TOT_CFS) for MRB2 lakes (yet).
+* Below is a table showing the number of lakes by trophic state and the number expected change based on the 2020 CMAQ Scenario
+
+```{r table, include=TRUE, echo=FALSE, cache=TRUE}
+  TSNtable
+```
+
+* Changes are seen all along the east coast.
+* Below are maps for the change analysis based on:
+  * outChg: outflow concentrations
+  * inChg: inflow concentrations
+  * lakeChg: in-lake concentrations.
+
+```{r outChg, include=TRUE, echo=FALSE, cache=FALSE}
+  #suppress warnings-if no lakes got worse this throws a warning-so warnings are turned off
+      options(warn=-1)
+  plotChg('outChg')
+```
+
+```{r inChg, include=TRUE, echo=FALSE, cache=FALSE}
+  plotChg('inChg')
+```
+
+```{r lakeChg, include=TRUE, echo=FALSE, cache=FALSE}
+  plotChg('lakeChg')
+  #turn warnings back on
+      options(warn=0)
 ```
 
 
-#merge coordinates data with TSN
-  a<-data.frame(coordinates(lakesPtAlbers)) #get the coordinates
-  a$WBRCHCODE<-as.numeric(row.names(a))
-  TSN<-merge(TSN,a,by='WBRCHCODE',all.x=TRUE)
-#convert to spatial points data.frame
-  a<-na.exclude(TSN)
-  coords<-data.frame(x=a$x,y=a$y)
-  TSNpts<-SpatialPointsDataFrame(coords,a)  #convert to spdf
 
-#plot changes  
-  plotChg<-function(est='outChg',CEX=.2){
-    plot(TSNpts,col='grey',pch=16,cex=CEX)
-    plot(TSNpts[TSNpts@data[,est]==-1,],col='blue',pch=16,add=T,cex=CEX)
-    title(est)
-  }
-
-windows(10.5,7)
-par(mfrow=c(1,3))
-  plotChg('outChg')
-  plotChg('inChg')
-  plotChg('lakeChg')
-  
   
