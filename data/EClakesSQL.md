@@ -28,8 +28,11 @@ Create EClakes.sqlite in the "./data/" subdirectory and add the following tables
 
 * **Table R2020m2**: Nitrogen predictions for MRB2 aggregated to lakes by reachcode (WBRchCd). Original data received from Anne Hoos on September 23 2014 (Sasdataset: "mrb2_massbalancereservoirs_2020.sas7bdat" in “forBryan_MRB2_Nitrogen_2002vs2020.zip”) and saved to C:\Bryan\EPA\Data\Sparrow\EastCoast\Predictions20140923. File read directly into R and saved as a table in EClakes.sqlite.
 
+<<<<<<< HEAD
 * browseURL('https://github.com/willbmisled/ECsparrow/blob/master/data/EClakesSQL.md')
 
+=======
+>>>>>>> e265630f21b75e693fc6215f87103ad8ec78fed8
 
 
 

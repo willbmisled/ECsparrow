@@ -33,8 +33,14 @@ The following code will open the formatted text version of the Rmarkdown file in
     browseURL('https://github.com/willbmisled/ECsparrow/blob/master/data/lakesSpatialData.md')
 ************
 The data can be loaded into R with the following code:
+<<<<<<< HEAD
   #Get the Data (make sure you are in the "data" subdirectory)
     load('lakesSpatialData.rda')
+=======
+************
+  #Get the Data (make sure you are in the "data" subdirectory)
+    load(url('lakesSpatialData.rda'))
+>>>>>>> e265630f21b75e693fc6215f87103ad8ec78fed8
 
 ```{r loadPkgs, include=FALSE, echo=FALSE, cache=TRUE}
   options(stringsAsFactors = FALSE, scipen=9) 

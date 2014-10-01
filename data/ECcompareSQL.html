@@ -148,7 +148,11 @@ hr {
 
 <ul>
 <li>ready to go 20140930</li>
+<<<<<<< HEAD
 <li>But, R2002 does not have a field for incremental load.  Need to verify if it is included in the input load so I can compare my method for calculating total lake concentrations.</li>
+=======
+<li>But, R2002 does not have a field for incremental load.  I can still compare my method for calculating inflow and outflow loads but not total lake concentrations.</li>
+>>>>>>> e265630f21b75e693fc6215f87103ad8ec78fed8
 </ul>
 
 <!---
@@ -172,7 +176,10 @@ Some useful RSQLite commands
 <li><strong>Table R2002</strong>: Nitrogen predictions MRB1 (N2002) aggregated to lakes by reachcode (WBRchCd). Original data received from Anne Hoos on September 29 2014 (Sasdataset: &ldquo;mrb1_massbalancereservoirs_2002.sas7bdat&rdquo; in “Corrected_predictandmassbal_tn_2002_mrb1_excludeincdecay_noatmsec.zip”) and saved to C:\Bryan\EPA\Data\Sparrow\EastCoast\Predictions20140923. File read directly into R and saved as a table in ECcompare.sqlite. NOTE:Only a small subset of the available data fields are kept to reduce the size of the database (see ECcompareDataDefinitions.xls). </li>
 <li><strong>Table &ldquo;flowlines</strong>&rdquo;: Links the flowline COMIDs to the MRB1 WBIDs and shows whether the flowline is an input or output to the lake or an internal reach. Imported from tblJoinFlowline_WBID_InOut (MRB1.mdb)</li>
 <li><strong>Table &ldquo;reachcodes&rdquo;</strong> links the MRB1 WaterbodyIDs (WBID) to the NHDplus waterbody Reachcodes (WBRchCd). Created (code below) from: MRB1_NHDWaterbody (WaterbodyDatabase.mdb: the MRB1 NHDplus waterbodies showing the COMIDs and Reachcodes) and tblJoinCOMID_WBID (WaterbodyDatabase.mdb: a table to match waterbody COMIDs to the Lake WBIDs). The reachcodes are used to compare values to R2002.</li>
+<<<<<<< HEAD
 <li>browseURL(&#39;<a href="https://github.com/willbmisled/ECsparrow/blob/master/data/ECcompareSQL.md&#x27;">https://github.com/willbmisled/ECsparrow/blob/master/data/ECcompareSQL.md&#39;</a>)</li>
+=======
+>>>>>>> e265630f21b75e693fc6215f87103ad8ec78fed8
 </ul>
 
 <h2>Create table &ldquo;reachcodes&rdquo;: join the WBIDs to the GRIDCODES for MRB1</h2>
