@@ -79,8 +79,8 @@ Create EClakes.sqlite in the "./data/" subdirectory and add the following tables
         R2002m2<-read.sas7bdat("C:/Bryan/EPA/Data/Sparrow/EastCoast/Predictions20140923/mrb2_massbalancereservoirs_2002.sas7bdat")
       #rename "MOFLOWU" to "TOT_CFS" to match MRB1
         names(R2002m2)[which(names(R2002m2)=='MAFLOWU')]<-'TOT_CFS'
-      #rename "WBRchCd" to "WBRCHCD" to match MRB1
-        names(R2002m2)[which(names(R2002m2)=='WBRchCd')]<-'WBRCHCD'
+      #rename "WBRchCd" to "WBRCHCODE" to match MRB1
+        names(R2002m2)[which(names(R2002m2)=='WBRchCd')]<-'WBRCHCODE'
       #add to EClakes.sqlite
         dbWriteTable(conn=EClakes,name='R2002m2',value=R2002m2,row.names=FALSE,overwrite=TRUE)
 ```
@@ -94,8 +94,8 @@ Create EClakes.sqlite in the "./data/" subdirectory and add the following tables
         R2020m2<-read.sas7bdat("C:/Bryan/EPA/Data/Sparrow/EastCoast/Predictions20140923/mrb2_massbalancereservoirs_2020.sas7bdat")
       #rename "MOFLOWU" to "TOT_CFS" to match MRB1
         names(R2020m2)[which(names(R2020m2)=='MAFLOWU')]<-'TOT_CFS'
-      #rename "WBRchCd" to "WBRCHCD" to match MRB1
-        names(R2020m2)[which(names(R2020m2)=='WBRchCd')]<-'WBRCHCD'
+      #rename "WBRchCd" to "WBRCHCODE" to match MRB1
+        names(R2020m2)[which(names(R2020m2)=='WBRchCd')]<-'WBRCHCODE'
       #add to EClakes.sqlite
         dbWriteTable(conn=EClakes,name='R2020m2',value=R2020m2,row.names=FALSE,overwrite=TRUE)
 ```
