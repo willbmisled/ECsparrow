@@ -147,7 +147,7 @@ hr {
 <h2>Stuff to do </h2>
 
 <ul>
-<li>ready to go 20140930</li>
+<li>ready to go 20141006</li>
 </ul>
 
 <!---
@@ -160,7 +160,7 @@ First make sure you are in the data directory:
 Some useful RSQLite commands
       EC<-dbConnect(SQLite(), dbname='EClakes.sqlite')
       dbListTables(EC)                         # List the tables in the database
-      dbListFields(EC, "R2020m1")               # List the columns in a table
+      dbListFields(EC, "R2002m2")               # List the columns in a table
       dbReadTable(EC, "R2020m2")                # Display the data in a table method1
       dbGetQuery(EC, "SELECT * from R2020m1")   # Display the data in a table method2
 -->
@@ -206,7 +206,7 @@ With one important exception (explained in next sentence), we chose to report in
 </tr>
 <tr>
 <td><strong>WBRCHCODE</strong></td>
-<td>Waterbody Reachcode,  unique identifier for a reservoir or lake.  Most of these corresponds with the attribute &#39;REACHCODE&#39; in the shapefile NHDwaterbody except where manual fixes were made (documented in the SAS program that populates the SPARROW input data  set); in a few cases a new reachcode was assigned by Craig Johnston in 2012</td>
+<td>Waterbody Reachcode,  unique identifier for a reservoir or lake.  Most of these corresponds with the attribute &#39;REACHCODE&#39; in the shapefile NHDwaterbody except where manual fixes were made (documented in the SAS program that populates the SPARROW input data  set); in a few cases a new reachcode was assigned by Craig Johnston in 2012.  Note: this field originally names &ldquo;WBRchCd&rdquo; in the MRB2 files</td>
 </tr>
 <tr>
 <td><strong>GNIS_NAME</strong></td>
@@ -286,7 +286,7 @@ With one important exception (explained in next sentence), we chose to report in
 </tr>
 <tr>
 <td><strong>TOT_CFS</strong></td>
-<td>Mean annual streamflow (cfs) for the reach segment at the downstream end of the reservoir (MAFLOWU)</td>
+<td>Mean annual streamflow (cfs) for the reach segment at the downstream end of the reservoir (MAFLOWU). Note: this field originally names &ldquo;MAFLOWU&rdquo; in the MRB2 files</td>
 </tr>
 <tr>
 <td><strong>DIVERGENCE</strong></td>

@@ -2,7 +2,7 @@ East Coast Sparrow Model Data
 ========================================================
 Stuff to do 
 -------------------------
-* ready to go 20140930
+* ready to go 20141006
 
 <!---
 use these command instead of the knit icon if you want the data and work loaded into the R workspace
@@ -14,7 +14,7 @@ First make sure you are in the data directory:
 Some useful RSQLite commands
       EC<-dbConnect(SQLite(), dbname='EClakes.sqlite')
       dbListTables(EC)                         # List the tables in the database
-      dbListFields(EC, "R2020m1")               # List the columns in a table
+      dbListFields(EC, "R2002m2")               # List the columns in a table
       dbReadTable(EC, "R2020m2")                # Display the data in a table method1
       dbGetQuery(EC, "SELECT * from R2020m1")   # Display the data in a table method2
 -->
@@ -30,6 +30,15 @@ Create EClakes.sqlite in the "./data/" subdirectory and add the following tables
 * **Table R2020m2**: Nitrogen predictions for MRB2 aggregated to lakes by reachcode (WBRchCd). Original data received from Anne Hoos on September 23 2014 (Sasdataset: "mrb2_massbalancereservoirs_2020.sas7bdat" in “forBryan_MRB2_Nitrogen_2002vs2020.zip”) and saved to C:\Bryan\EPA\Data\Sparrow\EastCoast\Predictions20140923. File read directly into R and saved as a table in EClakes.sqlite.
 
 * Link to this document: https://github.com/willbmisled/ECsparrow/blob/master/data/EClakesSQL.md
+
+
+
+
+
+
+
+
+
 
 
 
@@ -56,7 +65,7 @@ With one important exception (explained in next sentence), we chose to report in
 **Field** | **Definition**
 ------------- | -------------
 **EstuaryGroup** | Grouping number, for presentation of results in Appendix 1 of DS Report 820 
-**WBRCHCODE** | Waterbody Reachcode,  unique identifier for a reservoir or lake.  Most of these corresponds with the attribute 'REACHCODE' in the shapefile NHDwaterbody except where manual fixes were made (documented in the SAS program that populates the SPARROW input data  set); in a few cases a new reachcode was assigned by Craig Johnston in 2012
+**WBRCHCODE** | Waterbody Reachcode,  unique identifier for a reservoir or lake.  Most of these corresponds with the attribute 'REACHCODE' in the shapefile NHDwaterbody except where manual fixes were made (documented in the SAS program that populates the SPARROW input data  set); in a few cases a new reachcode was assigned by Craig Johnston in 2012.  Note: this field originally names "WBRchCd" in the MRB2 files
 **GNIS_NAME** | Waterbody name from the Geographic Name Information System
 **demtarea** | Cumulative drainage area (km2) for the downstream node of the flowline reach segment at the downstream end of the reservoir (same as CUMDRAINAG)
 **AreaSqKm** | Total area of surface area of the reservoir/lake, in km2  (from Craig Johnston)
@@ -76,7 +85,7 @@ With one important exception (explained in next sentence), we chose to report in
 **networked** | Flag indicating that lake/reservoir waterbody intersects with initialized flowline (1 = yes, all entries in this table have value of 1)
 **ReachType** | Flag indicating whether flowline segment is a stream (0) or reservoir (2) reach,  used for SPARROW model simulation of mass removed (all entries in this table have value = 2)
 **huc8** | 8-digit hydrologic unit code for the reach segment at the downstream end of the watebody polygon
-**TOT_CFS** | Mean annual streamflow (cfs) for the reach segment at the downstream end of the reservoir (MAFLOWU)
+**TOT_CFS** | Mean annual streamflow (cfs) for the reach segment at the downstream end of the reservoir (MAFLOWU). Note: this field originally names "MAFLOWU" in the MRB2 files
 **DIVERGENCE** | 
 **OUTLET** | Flag indicating outlet reach  (all reaches in this data set are the outlet reaches)
 **hload_aggreg** | Hydraulic load of the lake/reservoir (also known as the surface overflow rate, qs),  in meters per year, calculated as MAFLOWU * 0.02832 * 86400 * 365 / (AreaSA_KM2 * 1000000)
