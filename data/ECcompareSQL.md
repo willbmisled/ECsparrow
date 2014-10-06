@@ -2,8 +2,9 @@ East Coast Sparrow Model Compare Methods to Aggregate Loads to Lakes-Data Step
 ========================================================
 Stuff to do 
 -------------------------
-* ready to go 20140930
-* But, R2002 does not have a field for incremental load.  Need to verify if it is included in the input load so I can compare my method for calculating total lake concentrations.
+* ready to go 20141006
+* Verify that N2002 reachcode_comb is WBRCHCDE
+* R2002 does not have a field for incremental load.  Need to verify if it is included in the input load so I can compare my method for calculating total lake concentrations.
 
 <!---
 use these command instead of the knit icon if you want the data and work loaded into the R workspace
