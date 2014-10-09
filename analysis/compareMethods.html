@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=9" >
+
+<title>East Coast SPARROW: Compare Methods to Aggregate Loads to Lakes</title>
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 12px;
+   margin: 8px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 { 
+   font-size:2.2em; 
+}
+
+h2 { 
+   font-size:1.8em; 
+}
+
+h3 { 
+   font-size:1.4em; 
+}
+
+h4 { 
+   font-size:1.0em; 
+}
+
+h5 { 
+   font-size:0.9em; 
+}
+
+h6 { 
+   font-size:0.8em; 
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre {	
+   margin-top: 0;
+   max-width: 95%;
+   border: 1px solid #ccc;
+   white-space: pre-wrap;
+}
+
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code.r, code.cpp {
+   background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * { 
+      background: transparent !important; 
+      color: black !important; 
+      filter:none !important; 
+      -ms-filter: none !important; 
+   }
+
+   body { 
+      font-size:12pt; 
+      max-width:100%; 
+   }
+       
+   a, a:visited { 
+      text-decoration: underline; 
+   }
+
+   hr { 
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote { 
+      padding-right: 1em; 
+      page-break-inside: avoid; 
+   }
+
+   tr, img { 
+      page-break-inside: avoid; 
+   }
+
+   img { 
+      max-width: 100% !important; 
+   }
+
+   @page :left { 
+      margin: 15mm 20mm 15mm 10mm; 
+   }
+     
+   @page :right { 
+      margin: 15mm 10mm 15mm 20mm; 
+   }
+
+   p, h2, h3 { 
+      orphans: 3; widows: 3; 
+   }
+
+   h2, h3 { 
+      page-break-after: avoid; 
+   }
+}
+
+</style>
+
+
+
+
+
+</head>
+
+<body>
+<h1>East Coast SPARROW: Compare Methods to Aggregate Loads to Lakes</h1>
+
+<h2>Stuff to do </h2>
+
+<ul>
+<li></li>
+</ul>
+
+<!---
+use these command instead of the knit icon if you want the data and work loaded into the R workspace
+First make sure you are in the analysis directory: 
+  setwd('analysis')
+  library(knitr)
+  knit('compareMethods.rmd')
+  
+Some useful RSQLite commands
+setwd('..')
+      EC<-dbConnect(SQLite(), dbname='../data/ECcompare.sqlite')
+      dbListTables(EC)                         # List the tables in the database
+      dbListFields(EC, "R2002m1")               # List the columns in a table
+      dbReadTable(EC, "R2002m2")                # Display the data in a table method1
+      dbGetQuery(EC, "SELECT * from R2020m1")   # Display the data in a table method2
+-->
+
+<h2>Introduction</h2>
+
+<ul>
+<li>The East Coast SPARROW model predicts nitrogen loads to streams in MRB1 and MRB2 (HUC regions 01, 02, 03, and 06)</li>
+<li>Information on the East Coast Model can be found here:
+
+<ul>
+<li>Moorman, M.C., Hoos, A.B., Bricker, S.B., Moore, R.B., García, A.M., and Ator, S.W., 2014, Nutrient load summaries for major lakes and estuaries of the Eastern United States, 2002: U.S. Geological Survey Data Series 820, 94 p.,  <a href="http://dx.doi.org/10.3133/ds820">http://dx.doi.org/10.3133/ds820</a>.</li>
+</ul></li>
+<li>Estimates of atmospheric deposition of nitrogen are derived from the CMAQ (Community Multi-scale Air Quality Model) model (<a href="http://www.epa.gov/AMD/Research/RIA/cmaq.html">http://www.epa.gov/AMD/Research/RIA/cmaq.html</a>)</li>
+<li>The referenced USGS publication aggregates the loads from individual flowlines to NHDplus lakes (defined by reachcode).</li>
+<li>In this paper listed below we also aggregate the flowlines to lakes (based a dissolve of contiguous NHDplus lakes)
+
+<ul>
+<li>Milstead, W. B., J. W. Hollister, R. B. Moore, and H. A. Walker. 2013. Estimating Summer Nutrient Concentrations in Northeastern Lakes from SPARROW Load Predictions and Modeled Lake Depth and Volume. PLoS ONE PLoS ONE 8:e81457.</li>
+</ul></li>
+<li>Lakes defined by WBID and those defined by reachcode are largely comparable (see data definitions below) so we should be able to compare methods.</li>
+<li>Ann Hoos and Rich Moore have provide the lakes data from their methods and the East Coast Sparrow Predictions for the flowlines.</li>
+<li>The goal of this project is to recalculate the loads to lakes using the Milstead et al methods to compare results.</li>
+</ul>
+
+<h2>Objectives</h2>
+
+<ul>
+<li>Calculate input, output, and internal loads to lakes based on methods from Milstead et al</li>
+<li>Compare to loads calculated in Moorman et al</li>
+</ul>
+
+<h2>Data Sources</h2>
+
+<ul>
+<li>The East Coast SPARROW N predictions by flowline are in: &#39;/data/ECcompare.sqlite&#39;. </li>
+<li>Data Description: <a href="https://github.com/willbmisled/ECsparrow/blob/master/data/ECcompareSQL.md">https://github.com/willbmisled/ECsparrow/blob/master/data/ECcompareSQL.md</a></li>
+<li>Four tables are included:
+
+<ul>
+<li><strong>N2002</strong>: N predictions based on 2002 conditions for flowlines</li>
+<li><strong>R2002</strong>: N2002 predictions aggregated to lakes</li>
+<li><strong>flowlines</strong>: crosswalk flowlines to lakes based on WBID</li>
+<li><strong>reachcodes</strong>: crosswalk WBID to reachcodes</li>
+</ul></li>
+</ul>
+
+<h2>Results</h2>
+
+<ul>
+<li>Lake trophic state w</li>
+</ul>
+
+</body>
+
+</html>
+

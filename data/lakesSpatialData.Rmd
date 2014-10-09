@@ -2,7 +2,7 @@ Create Spatial Objects for Waterbodies in HUC regions 01, 02, 03, and 06
 ========================================================
 Stuff to do 
 -------------------------
-* ready 20140930
+* ready 20141009
 
 <!---
 use these command instead of the knit icon if you want the data and work loaded into the R workspace
@@ -12,8 +12,6 @@ First make sure you are in the data directory:
   knit('lakesSpatialData.rmd')
   
 -->
-
-
 Spatial Data
 -------------------------
 * read the nhdwaterbody.shp files for the four regions
@@ -21,10 +19,13 @@ Spatial Data
 * merge lakes from the regions
 * dissolve based on reachcode-output= SpatialPolygonsDataframe "lakes" with geographic coordinates
 * get the centroids and convert to spdf with reachcode (WBRCHCODE) as an attribute. output= SpatialPointsDataframe "lakes" with geographic coordinates
-* save data in "lakesSpatialData.rda"
-* two spatial datasets are created for the lakes in MRB1 and MRB2; both in geographic coordinates
+* Three spatial and one tabular datasets are created for the lakes in MRB1 and MRB2; both in geographic coordinates (NAD83)
   * lakes: a spatial Polygons Dataframe with the lake locations based on reachcode (WBRCHCODE)
   * lakesPt: a spatial Points Dataframe with the lake centroids based on reachcode (WBRCHCODE)
+  * ECstates: state boundaries (derived from a shapefile from Jane Copeland) for states in MRB1 and MRB2
+  * lakeStates: a table matching the 88662 lakes with reachcodes to states (note: lakes in more than 1 state arbitrarily assigned to 1 of the states.)
+* "lakes", "lakesPt", and "lakeStates"" saved in "lakesSpatialData.rda"
+* "ECstates" saved in "EClakes.rda"
 * Link to this document: https://github.com/willbmisled/ECsparrow/blob/master/data/lakesSpatialData.md
   
 ```{r loadPkgs, include=FALSE, echo=FALSE, cache=TRUE}
@@ -32,7 +33,7 @@ Spatial Data
 
 
   #function to install (if needed) and load R packages by list
-    libs<-c('RSQLite','rgdal','maptools','RODBC') #list of packages to load
+    libs<-c('RSQLite','rgdal','maptools','RODBC','maps','rgeos') #list of packages to load
   
     installLoad<-function(pck)#user defined function
     {
@@ -117,6 +118,9 @@ Spatial Data
   data<-data.frame(WBRCHCODE=row.names(lakesPt))  #the reachcodes
       row.names(data)<-row.names(lakesPt)
   lakesPt<-SpatialPointsDataFrame(coords, data)  #convert to spdf
+    proj4string(lakesPt)<-CRS("+proj=longlat +datum=NAD83 +no_defs +ellps=GRS80 +towgs84=0,0,06") #set crs
+  
+
 #Check to see if all of the reachcodes for lakes with SPARROW data are included.
   #Get the SPARROW lakes reachcodes.
     EC<-dbConnect(SQLite(), dbname='EClakes.sqlite')
@@ -127,10 +131,6 @@ Spatial Data
     test<-RC$WBRCHCODE%in%lakesPt$WBRCHCODE
     table(test) #FALSE=43 TRUE=41523
     a<-RC[!test,]
-    
-
-#save the data
-  save(lakes,lakesPt,file='lakesSpatialData.rda')
 ```
 
 Missing reachcodes 
@@ -143,3 +143,140 @@ Missing reachcodes
 ```{r missing, include=TRUE, echo=FALSE, cache=TRUE}
 RC[!test,]
 ```
+
+```{r statesMap, include=FALSE, echo=FALSE, cache=TRUE}
+#get us states (Data source = Jane Copeland)
+  US50wgs84<- readShapePoly('L:/Public/Milstead_Lakes/GIS/StateBoundaries/States.shp', 
+                       proj4string=CRS("+proj=longlat +datum=WGS84"))   
+#reproject to NAD83
+  US50nad83<-spTransform(US50wgs84,CRS("+proj=longlat +datum=NAD83 +no_defs +ellps=GRS80 +towgs84=0,0,06"))
+#crop file to EC states
+  keep<-which(US50wgs84@data$STATE_ABBR%in%c('AL','CT','DE','DC','FL','GA','KY','LA','ME','MD','MA','MS',
+                                              'NH','NJ','NY','NC','PA','RI','SC','TN','VT','VA','WV'))
+  ECstates<-US50nad83[keep,]
+    #plot(lakesPt,pch=16,cex=.001,col='red')
+    #plot(ECstatesNAD83a,add=TRUE)
+#delete files to free memory
+  rm(US50wgs84)
+  rm(US50nad83)
+#save the data
+  save(lakes,lakesPt,file='lakesSpatialData.rda')
+  save(ECstates,file='ECstates.rda') 
+```
+
+```{r statesTable, include=FALSE, echo=FALSE, cache=TRUE}  
+#assign state names to table TSN
+  #Free memory-this is a memory hawg.
+    rm(list=ls()) #clear workspace
+    gc() #free memory
+  #load the data
+    load(file='lakesSpatialData.rda')
+    load(file='ECstates.rda')
+  #use loop to do the overlay
+    # this can't be done all at once so split into bins and then rbind the results
+      #' x is the number of lakes to do in each bin
+      #' lakes is the lakes spatial object
+      #' states is the states spatial object
+    fOver<-function(x=1000,Lakes=lakesPt,States=ECstates) {  
+      k<-floor(nrow(Lakes)/x) #number of loops
+      a<-as.data.frame(over(Lakes[1:x,],States)) #start database
+      a[(x+1):nrow(Lakes),]<-NA   #add blank rows
+      row.names(a)<-row.names(Lakes) #these are the lake reachcodes; need to keep them
+      #loop to add more lakes       
+        for(i in 2:k){
+          start<-((i-1)*x)+1
+          end<-start+x-1
+          a[start:end,]<-over(Lakes[start:end,],States) #add lakes
+        }
+      #add last lakes
+        start<-(k*x)+1
+        end<-nrow(Lakes)
+        a[start:end,]<-over(Lakes[start:end,],States) #add lakes
+      #output results
+        return(a)
+    } 
+  
+  #get state/lake matches
+    #overlay the centroids first
+      lakePtStates<-fOver(x=1000,Lakes=lakesPt,States=ECstates) 
+        table(is.na(lakePtStates$STATE_ABBR)) #388 of 88662 not assigned
+      #write nonNA data to lakeStates
+        lakeStates<-na.exclude(data.frame(WBRCHCODE=row.names(lakePtStates),
+                    State=lakePtStates$STATE_NAME,ST=lakePtStates$STATE_ABBR))        
+    #for lake centroids not assigned overlay the lake polgyons
+      all.equal(row.names(lakes),row.names(lakesPt))  #TRUE so lakes are in the same order
+      keep<-is.na(lakePtStates$STATE_ABBR) #missing lakes
+      lakes1<-lakes[keep,] #polygons of missing lakes
+        lakePtStates1<-as.data.frame(over(lakes1,ECstates)) 
+        table(is.na(lakePtStates1)) #11 of 388 not assigned
+      #add nonNA data to lakeStates
+        a<-na.exclude(lakePtStates1) #exclude non-assigned lakes
+        names(a)<-'Index' #results are the row indices of ECstates 
+        a$WBRCHCODE<-row.names(a)
+        b<-ECstates@data #copy ECstates data
+        b$Index<-1:nrow(b) #add merge field "Index"
+        q<-merge(a,b,by='Index',all.x=T)[,c("WBRCHCODE","STATE_NAME","STATE_ABBR")] #merge data
+          names(q)<-c("WBRCHCODE","State","ST")
+        table(is.na(q$ST)) #false=377
+        lakeStates<-rbind(lakeStates,q)
+    #list of lakes to check visually
+        chkLakes<-lakePtStates1 #copy before modifying
+        chkLakes$WBRCHCODE<-row.names(chkLakes)
+        chkLakes<-chkLakes[is.na(chkLakes),'WBRCHCODE']
+    #add chkLakes to lakeStates
+      a<-unique(lakeStates[-1])
+      b<-data.frame(WBRCHCODE=chkLakes,ST=c("MA","MA","MD","VA","VA","VA","VA","NC","NC","NC","FL"))
+      q<-merge(b,a,by='ST',all.x=TRUE)
+      chkLakes<-q[,c(2,3,1)]
+      lakeStates<-rbind(lakeStates,chkLakes)
+        nrow(lakeStates)
+    #save the data
+      save(lakes,lakesPt,lakeStates,file='lakesSpatialData.rda') 
+```
+
+Assign Lakes to States
+-------------------------
+* use the "over" function (packages 'sp' and 'rgeos') to overlay lake Centroids on states
+* this returns a df with 88274 of the 88662 lakes assigned to states
+* NOTE: if a lake is more than 1 state it is arbitrarily assigned to one of the states (probably the one with the lowest index value)
+* The 388 lakes that were not assigned are probably on the coast side of the state and just outside of the boundary.
+* Next step is to overlay this polygons of the missing lakes on the states.
+* This returns a df with 377 of the 388 missing lakes assigned to a state
+* This leaves 11 lakes unassigned-for completeness I will check these visually and assign them to states.
+* These were viewed individually in ArcGIS and assigned to states.
+* Visually verified lakes include:
+
+```{r chkLakes, include=TRUE, echo=FALSE, cache=TRUE} 
+chkLakes
+```
+
+Data Definitions
+-------------------------
+**SpatialPolygonsDataFrame "Lakes" and SpatialPointsDataFrame "LakesPt"**
+* 88662 observations
+* Geographic Coordinates datum=NAD83 (proj4string="+proj=longlat +datum=NAD83 +no_defs +ellps=GRS80 +towgs84=0,0,06")
+
+**Field** | **Definition**
+------------- | -------------
+**WBRCHCODE** | Waterbody Reachcode, unique identifier for a reservoir or lake from the attribute 'REACHCODE' in the shapefile(s) NHDwaterbody.  
+
+**DataFrame "lakeStates"** 
+* 88662 observations
+* Geographic Coordinates datum=NAD83 (proj4string="+proj=longlat +datum=NAD83 +no_defs +ellps=GRS80 +towgs84=0,0,06")
+
+**Field** | **Definition**
+------------- | -------------
+**WBRCHCODE** | Waterbody Reachcode, unique identifier for a reservoir or lake from the attribute 'REACHCODE' in the shapefile(s) NHDwaterbody. 
+**State** | State names long form
+**ST** | Two letter state abbreviation.
+
+**SpatialPolygonsDataFrame "ECstates"** 
+* 23 observations
+* Geographic Coordinates datum=NAD83 (proj4string="+proj=longlat +datum=NAD83 +no_defs +ellps=GRS80 +towgs84=0,0,06")
+* Attributes appear to be summary stats from the 2010 census.  Fields include:
+
+```{r ECstates, include=FALSE, echo=FALSE, cache=TRUE} 
+names(ECstates)
+```
+
+

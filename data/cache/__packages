@@ -1,6 +1,7 @@
 base
 DBI
 knitr
+maps
 maptools
 rgdal
 rgeos
