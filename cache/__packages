@@ -1,9 +1,0 @@
-base
-DBI
-knitr
-maptools
-rgdal
-RODBC
-RSQLite
-sas7bdat
-sp
