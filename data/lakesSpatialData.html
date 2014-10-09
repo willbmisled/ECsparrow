@@ -147,7 +147,7 @@ hr {
 <h2>Stuff to do </h2>
 
 <ul>
-<li>ready 20140930</li>
+<li>ready 20141009</li>
 </ul>
 
 <!---
@@ -167,13 +167,15 @@ First make sure you are in the data directory:
 <li>merge lakes from the regions</li>
 <li>dissolve based on reachcode-output= SpatialPolygonsDataframe &ldquo;lakes&rdquo; with geographic coordinates</li>
 <li>get the centroids and convert to spdf with reachcode (WBRCHCODE) as an attribute. output= SpatialPointsDataframe &ldquo;lakes&rdquo; with geographic coordinates</li>
-<li>save data in &ldquo;lakesSpatialData.rda&rdquo;</li>
-<li>two spatial datasets are created for the lakes in MRB1 and MRB2; both in geographic coordinates
+<li>Three spatial and one tabular datasets are created for the lakes in MRB1 and MRB2; both in geographic coordinates (NAD83)
 
 <ul>
 <li>lakes: a spatial Polygons Dataframe with the lake locations based on reachcode (WBRCHCODE)</li>
 <li>lakesPt: a spatial Points Dataframe with the lake centroids based on reachcode (WBRCHCODE)</li>
+<li>ECstates: state boundaries (derived from a shapefile from Jane Copeland) for states in MRB1 and MRB2</li>
+<li>lakeStates: a table matching the 88662 lakes with reachcodes to states (note: lakes in more than 1 state arbitrarily assigned to 1 of the states.)</li>
 </ul></li>
+<li>data saved in &ldquo;lakesSpatialData.rda&rdquo;</li>
 <li>Link to this document: <a href="https://github.com/willbmisled/ECsparrow/blob/master/data/lakesSpatialData.md">https://github.com/willbmisled/ECsparrow/blob/master/data/lakesSpatialData.md</a></li>
 </ul>
 
@@ -198,6 +200,90 @@ First make sure you are in the data directory:
 ## [37] &quot;18926156&quot;       &quot;18156295&quot;       &quot;22760058&quot;       &quot;22760460&quot;      
 ## [41] &quot;19267368&quot;       &quot;18926182&quot;       &quot;18156275&quot;
 </code></pre>
+
+<h2>Assign Lakes to States</h2>
+
+<ul>
+<li>use the &ldquo;over&rdquo; function (packages &#39;sp&#39; and &#39;rgeos&#39;) to overlay lake Centroids on states</li>
+<li>this returns a df with 88274 of the 88662 lakes assigned to states</li>
+<li>NOTE: if a lake is more than 1 state it is arbitrarily assigned to one of the states (probably the one with the lowest index value)</li>
+<li>The 388 lakes that were not assigned are probably on the coast side of the state and just outside of the boundary.</li>
+<li>Next step is to overlay this polygons of the missing lakes on the states.</li>
+<li>This returns a df with 377 of the 388 missing lakes assigned to a state</li>
+<li>This leaves 11 lakes unassigned-for completeness I will check these visually and assign them to states.</li>
+<li>These were viewed individually in ArcGIS and assigned to states.</li>
+<li>Visually verified lakes include:</li>
+</ul>
+
+<pre><code>##         WBRCHCODE          State ST
+## 1  03080201001942        Florida FL
+## 2  01090002003246  Massachusetts MA
+## 3  01090002003438  Massachusetts MA
+## 4  02070011002029       Maryland MD
+## 5  03010205008515 North Carolina NC
+## 6  03020105001359 North Carolina NC
+## 7  03020105001424 North Carolina NC
+## 8  02080109000499       Virginia VA
+## 9  02080109000503       Virginia VA
+## 10 02080110001233       Virginia VA
+## 11 03010205008503       Virginia VA
+</code></pre>
+
+<h2>Data Definitions</h2>
+
+<p><strong>SpatialPolygonsDataFrame &ldquo;Lakes&rdquo; and SpatialPointsDataFrame &ldquo;LakesPt&rdquo;</strong></p>
+
+<ul>
+<li>88662 observations</li>
+<li>Geographic Coordinates datum=NAD83 (proj4string=&ldquo;+proj=longlat +datum=NAD83 +no_defs +ellps=GRS80 +towgs84=0,0,06&rdquo;)</li>
+</ul>
+
+<table><thead>
+<tr>
+<th><strong>Field</strong></th>
+<th><strong>Definition</strong></th>
+</tr>
+</thead><tbody>
+<tr>
+<td><strong>WBRCHCODE</strong></td>
+<td>Waterbody Reachcode, unique identifier for a reservoir or lake from the attribute &#39;REACHCODE&#39; in the shapefile(s) NHDwaterbody.</td>
+</tr>
+</tbody></table>
+
+<p><strong>DataFrame &ldquo;lakeStates&rdquo;</strong> </p>
+
+<ul>
+<li>88662 observations</li>
+<li>Geographic Coordinates datum=NAD83 (proj4string=&ldquo;+proj=longlat +datum=NAD83 +no_defs +ellps=GRS80 +towgs84=0,0,06&rdquo;)</li>
+</ul>
+
+<table><thead>
+<tr>
+<th><strong>Field</strong></th>
+<th><strong>Definition</strong></th>
+</tr>
+</thead><tbody>
+<tr>
+<td><strong>WBRCHCODE</strong></td>
+<td>Waterbody Reachcode, unique identifier for a reservoir or lake from the attribute &#39;REACHCODE&#39; in the shapefile(s) NHDwaterbody.</td>
+</tr>
+<tr>
+<td><strong>State</strong></td>
+<td>State names long form</td>
+</tr>
+<tr>
+<td><strong>ST</strong></td>
+<td>Two letter state abbreviation.</td>
+</tr>
+</tbody></table>
+
+<p><strong>SpatialPolygonsDataFrame &ldquo;ECstates&rdquo;</strong> </p>
+
+<ul>
+<li>23 observations</li>
+<li>Geographic Coordinates datum=NAD83 (proj4string=&ldquo;+proj=longlat +datum=NAD83 +no_defs +ellps=GRS80 +towgs84=0,0,06&rdquo;)</li>
+<li>Attributes appear to be summary stats from the 2010 census.  Fields include:</li>
+</ul>
 
 </body>
 
