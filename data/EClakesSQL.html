@@ -147,12 +147,13 @@ hr {
 <h2>Stuff to do </h2>
 
 <ul>
-<li>ready to go 20141006</li>
+<li>ready to go 20141009</li>
 </ul>
 
 <!---
 use these command instead of the knit icon if you want the data and work loaded into the R workspace
 First make sure you are in the data directory: 
+  getwd()
   setwd('data')
   library(knitr)
   knit('EClakesSQL.rmd')
@@ -169,7 +170,7 @@ Some useful RSQLite commands
 
 <ul>
 <li><p><strong>Table R2002m1</strong>: Nitrogen predictions for MRB1 aggregated to lakes by reachcode (WBRchCd). Original data received from Anne Hoos on September 11 2014 (Sasdataset: &ldquo;mrb1_massbalancereservoirs_2002.sas7bdat&rdquo; in “forBryan_corrected_MRB1_Nitrogen_2002vs2020.zip”) and saved to C:\Bryan\EPA\Data\Sparrow\EastCoast\Predictions20140911. File read directly into R and saved as a table in EClakes.sqlite.</p></li>
-<li><p><strong>Table R2002m2</strong>: Nitrogen predictions for MRB2 aggregated to lakes by reachcode (WBRchCd). Original data received from Anne Hoos on September 23 2014 (Sasdataset: &ldquo;mrb2_massbalancereservoirs_2002.sas7bdat&rdquo; in “forBryan_MRB2_Nitrogen_2002vs2020.zip”) and saved to C:\Bryan\EPA\Data\Sparrow\EastCoast\Predictions20140923. File read directly into R and saved as a table in EClakes.sqlite.</p></li>
+<li><p><strong>Table R2002m2</strong>: Nitrogen predictions for MRB2 aggregated to lakes by reachcode (WBRchCd). Original data received from Anne Hoos on October 3 2014 (Sasdataset: &ldquo;mrb2_massbalancereservoirs_2002.sas7bdat&rdquo; in “Massbal_MRB2_addFIPSCorrectInlake.zip”) and saved to C:\Bryan\EPA\Data\Sparrow\EastCoast\Predictions20141003. File read directly into R and saved as a table in EClakes.sqlite.</p></li>
 <li><p><strong>Table R2020m1</strong>: Nitrogen predictions for MRB1 aggregated to lakes by reachcode (WBRchCd). Original data received from Anne Hoos on September 11 2014 (Sasdataset: &ldquo;mrb1_massbalancereservoirs_2020.sas7bdat&rdquo; in “forBryan_corrected_MRB1_Nitrogen_2002vs2020.zip”) and saved to C:\Bryan\EPA\Data\Sparrow\EastCoast\Predictions20140911. File read directly into R and saved as a table in EClakes.sqlite.</p></li>
 <li><p><strong>Table R2020m2</strong>: Nitrogen predictions for MRB2 aggregated to lakes by reachcode (WBRchCd). Original data received from Anne Hoos on September 23 2014 (Sasdataset: &ldquo;mrb2_massbalancereservoirs_2020.sas7bdat&rdquo; in “forBryan_MRB2_Nitrogen_2002vs2020.zip”) and saved to C:\Bryan\EPA\Data\Sparrow\EastCoast\Predictions20140923. File read directly into R and saved as a table in EClakes.sqlite.</p></li>
 <li><p>Link to this document: <a href="https://github.com/willbmisled/ECsparrow/blob/master/data/EClakesSQL.md">https://github.com/willbmisled/ECsparrow/blob/master/data/EClakesSQL.md</a></p></li>
@@ -493,6 +494,10 @@ With one important exception (explained in next sentence), we chose to report in
 <tr>
 <td><strong>RetentCoeff_Nurnberg</strong></td>
 <td>Retention Coefficient (Rs) of the reservoir, computed as 15 /  (hload +  18)   (using Nurnberg, 1998)</td>
+</tr>
+<tr>
+<td><strong>FIPS_ST</strong></td>
+<td>state FIPS code for the lake</td>
 </tr>
 <tr>
 <td><strong>TN_LOAD_outflow</strong></td>

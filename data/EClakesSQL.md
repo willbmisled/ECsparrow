@@ -2,11 +2,12 @@ East Coast Sparrow Model Data
 ========================================================
 Stuff to do 
 -------------------------
-* ready to go 20141006
+* ready to go 20141009
 
 <!---
 use these command instead of the knit icon if you want the data and work loaded into the R workspace
 First make sure you are in the data directory: 
+  getwd()
   setwd('data')
   library(knitr)
   knit('EClakesSQL.rmd')
@@ -23,7 +24,7 @@ Create EClakes.sqlite in the "./data/" subdirectory and add the following tables
 -------------------------
 * **Table R2002m1**: Nitrogen predictions for MRB1 aggregated to lakes by reachcode (WBRchCd). Original data received from Anne Hoos on September 11 2014 (Sasdataset: "mrb1_massbalancereservoirs_2002.sas7bdat" in “forBryan_corrected_MRB1_Nitrogen_2002vs2020.zip”) and saved to C:\Bryan\EPA\Data\Sparrow\EastCoast\Predictions20140911. File read directly into R and saved as a table in EClakes.sqlite.
 
-* **Table R2002m2**: Nitrogen predictions for MRB2 aggregated to lakes by reachcode (WBRchCd). Original data received from Anne Hoos on September 23 2014 (Sasdataset: "mrb2_massbalancereservoirs_2002.sas7bdat" in “forBryan_MRB2_Nitrogen_2002vs2020.zip”) and saved to C:\Bryan\EPA\Data\Sparrow\EastCoast\Predictions20140923. File read directly into R and saved as a table in EClakes.sqlite.
+* **Table R2002m2**: Nitrogen predictions for MRB2 aggregated to lakes by reachcode (WBRchCd). Original data received from Anne Hoos on October 3 2014 (Sasdataset: "mrb2_massbalancereservoirs_2002.sas7bdat" in “Massbal_MRB2_addFIPSCorrectInlake.zip”) and saved to C:\Bryan\EPA\Data\Sparrow\EastCoast\Predictions20141003. File read directly into R and saved as a table in EClakes.sqlite.
 
 * **Table R2020m1**: Nitrogen predictions for MRB1 aggregated to lakes by reachcode (WBRchCd). Original data received from Anne Hoos on September 11 2014 (Sasdataset: "mrb1_massbalancereservoirs_2020.sas7bdat" in “forBryan_corrected_MRB1_Nitrogen_2002vs2020.zip”) and saved to C:\Bryan\EPA\Data\Sparrow\EastCoast\Predictions20140911. File read directly into R and saved as a table in EClakes.sqlite.
 
@@ -140,6 +141,7 @@ With one important exception (explained in next sentence), we chose to report in
 **hload_aggreg** | Hydraulic load of the lake/reservoir (also known as the surface overflow rate, qs),  in meters per year, calculated as MAFLOWU * 0.02832 * 86400 * 365 / (AreaSA_KM2 * 1000000)
 **hload_aggreg_yr** | Hydraulic load, in meters per year
 **RetentCoeff_Nurnberg** | Retention Coefficient (Rs) of the reservoir, computed as 15 /  (hload +  18)   (using Nurnberg, 1998)
+**FIPS_ST** | state FIPS code for the lake
 **TN_LOAD_outflow** | Total nitrogen load at downstream node of exit reach, in kg/yr - this is the value reported in USGS DS 820 source share table as "Total load".    Wanted to use TN_LOAD_inflow here, to be consistent with use of trib inflow info in the table that follows, but see explanation at top of this file
 **TP_LOAD_outflow** | Total phosphorus load at downstream node of exit reach, in kg/yr - this is the value reported in USGS DS 820 source share table as "Total load" -  Wanted to use TN_LOAD_inflow here, to be consistent with use of trib inflow info in the table that follows, but see explanation at top of this file
 **TNTP_LOAD_outflow** | Ratio of TN_LOAD_outflow to TP_LOAD_outflow
