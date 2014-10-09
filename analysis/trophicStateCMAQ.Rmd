@@ -2,13 +2,14 @@ East Coast SPARROW: Lake Trophic State Change Analysis for the CMAQ Scenario
 ========================================================
 Stuff to do 
 -------------------------
-* ready to go 20141??
-* rerun with flow data for MRB2
-* add field for states to the table "TSN"
+* ready to go 20141009
+
 
 <!---
 use these command instead of the knit icon if you want the data and work loaded into the R workspace
 First make sure you are in the analysis directory: 
+  getwd()
+  setwd('..')
   setwd('analysis')
   library(knitr)
   knit('trophicStateCMAQ.rmd')
@@ -16,7 +17,7 @@ First make sure you are in the analysis directory:
 Some useful RSQLite commands
       EC<-dbConnect(SQLite(), dbname='../data/EClakes.sqlite')
       dbListTables(EC)                         # List the tables in the database
-      dbListFields(EC, "R2002m1")               # List the columns in a table
+      dbListFields(EC, "R2002m2")               # List the columns in a table
       dbReadTable(EC, "R2002m2")                # Display the data in a table method1
       dbGetQuery(EC, "SELECT * from R2020m1")   # Display the data in a table method2
 -->
@@ -50,7 +51,8 @@ Data Sources
   * **R2002m2**: N predictions based on 2002 conditions for lakes in MRB2
   * **R2020m2**: N predictions based on 2020 conditions for lakes in MRB2
 * Polygon (lakes) and point (lakesPt) locations of the lakes are available in '/data/lakesSpatialData.rda'.  
-* Data Definitions: https://github.com/willbmisled/ECsparrow/blob/master/data/lakesSpatialData.md
+* ECstates boundaries are available in '/data/ECstates.rda'.  
+* Data Definitions for spatial data: https://github.com/willbmisled/ECsparrow/blob/master/data/lakesSpatialData.md
 
 ```{r loadPkgs, include=FALSE, echo=FALSE, cache=FALSE}
   options(stringsAsFactors = FALSE, scipen=9) 
@@ -67,14 +69,17 @@ Data Sources
     lapply(libs,function(x) installLoad(x))  #Load/Install require packages
 ```
 
-```{r data, include=FALSE, echo=FALSE, cache=TRUE}
+```{r data, include=FALSE, echo=FALSE, cache=FALSE}
 #get the lakes spatial data
     load('../data/lakesSpatialData.rda')
+    load('../data/ECstates.rda')
 
-#transform lakesPT to albers 
+#transform ECstates and lakesPT to albers 
   #ESRI USA Contiguous Albers Equal Area Conic (used by MRB1 WBIDLakes as AlbersX and AlbersY)
     Albers<-CRS('+proj=aea +x_0=0 +y_0=0 +lon_0=-96 +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +units=m +datum=NAD83')
     lakesPtAlbers<-spTransform(lakesPt,Albers)
+    statesAlbers<-spTransform(ECstates,Albers)
+
 
 #get the estimates of N loads under the CMAQ Scenarios
   #connect to EClakes.sqlite
@@ -85,25 +90,23 @@ Data Sources
   #get the 2002 estimates
     a<-dbGetQuery(EC, "SELECT WBRCHCODE,TOT_CFS,TN_LOAD_inflow,TN_LOAD_outflow,
                               TN_CONC_inlake,TN_CONC_inload from R2002m1") 
-    b<-dbGetQuery(EC, "SELECT WBRCHCODE,TN_LOAD_inflow,TN_LOAD_outflow,
-                              TN_CONC_inlake,TN_CONC_inload from R2002m2") #missing TOT_CFS
-        b$TOT_CFS<-NA
+    b<-dbGetQuery(EC, "SELECT WBRCHCODE,TOT_CFS,TN_LOAD_inflow,TN_LOAD_outflow,
+                              TN_CONC_inlake,TN_CONC_inload from R2002m2") 
     N2002<-rbind(a,b)
   #get the 2020 estimates
     a<-dbGetQuery(EC, "SELECT WBRCHCODE,TOT_CFS,TN_LOAD_inflow,TN_LOAD_outflow,
                               TN_CONC_inlake,TN_CONC_inload from R2020m1") 
-    b<-dbGetQuery(EC, "SELECT WBRCHCODE,TN_LOAD_inflow,TN_LOAD_outflow,
-                              TN_CONC_inlake,TN_CONC_inload from R2020m2") #missing TOT_CFS
-        b$TOT_CFS<-NA
+    b<-dbGetQuery(EC, "SELECT WBRCHCODE,TOT_CFS,TN_LOAD_inflow,TN_LOAD_outflow,
+                              TN_CONC_inlake,TN_CONC_inload from R2020m2") 
     N2020<-rbind(a,b)
 
-#add outflow concentrations (for MRB1) following same methods as Ann and Rich (see ECnote.rmd)
+#add outflow concentrations following same methods as Anne and Rich (see EClakesSQL.Rmd)
   N2002$TN_CONC_outload<-N2002$TN_LOAD_outflow/ (N2002$TOT_CFS * 28.32 * 1/1000000 * 86400 * 365 )
   N2020$TN_CONC_outload<-N2020$TN_LOAD_outflow/ (N2020$TOT_CFS * 28.32 * 1/1000000 * 86400 * 365 )
   
 #Check for missing values
-  table(is.na(N2002$TN_CONC_outload))   #missing = 23681; MRB2
-  table(is.na(N2020$TN_CONC_outload))   #missing = 23681; MRB2
+  table(is.na(N2002$TN_CONC_outload))   #no missing values
+  table(is.na(N2020$TN_CONC_outload))   #no missing values
   table(is.na(N2002$TN_CONC_inload))    #no missing values
   table(is.na(N2020$TN_CONC_inload))    #no missing values
   table(is.na(N2002$TN_CONC_inlake))    #no missing values
@@ -115,7 +118,7 @@ Data Sources
   all.equal(N2002$WBRCHCODE,N2020$WBRCHCODE) #same order
 ```
 
-```{r TSNtable, include=FALSE, echo=FALSE, cache=TRUE}
+```{r TSNtable, include=FALSE, echo=FALSE, cache=FALSE}
 #select TS criteria
   criteriaNLA<-c(.35,.75,1.4)  #mg/l
 #function to assign Trophic State in lakes based on Nitrogen thresholds
@@ -172,7 +175,44 @@ Data Sources
   #TSNtable
 ```
 
-```{r TSNmap, include=FALSE, echo=FALSE, cache=TRUE}
+```{r TSNstates, include=FALSE, echo=FALSE, cache=FALSE}
+#add states to TSN
+  #get the MRB1 lake state matches from Anne
+    #connect to EClakes.sqlite
+        EC<-dbConnect(SQLite(), dbname='../data/EClakes.sqlite')
+    #get the state fips codes for MRB1 supplied by Anne
+      Fips<-dbGetQuery(EC, "SELECT WBRCHCODE,FIPS_ST from R2002m2") 
+      Codes<-data.frame(FIPS_ST=unique(Fips$FIPS_ST),ST_Anne=c("VA","NC",NA,"SC","GA","FL","AL","MS","TN","LA","KY"))
+      Fips<-merge(Fips,Codes,by='FIPS_ST',all.x=TRUE)
+      table(is.na(Fips$ST_Anne)) #100 missing values
+      Fips<-na.exclude(Fips) #remove missing values
+    #merge Fips and lakeStates to compare values for ST
+      Compare<-merge(Fips,lakeStates,by='WBRCHCODE',all.x=TRUE)
+    #compare values for ST
+      Match<-Compare$ST==Compare$ST_Anne
+      table(Match)   #F=34 T=23510
+#merge TSN and lakeStates
+  TSN<-merge(TSN,lakeStates,by='WBRCHCODE',all.x=T)
+```
+
+Add States to Lakes TSN table
+-------------------------
+* To assess changes by state we add a field for state name to TSN
+* Anne Hoos assigned the MRB2 lakes to states
+* Lakes also assigned to states in lakesSpatialData.Rmd (df "lakeStates" in lakesSpatialData.rda)
+* State assignments compared and 34 were different
+* The differences appear to be on state borders so are due to slight differences in line work
+* Several were viewed in ArcGIS confirming they were on the state borders.
+* Below is a list of non-matches
+
+```{r TSNstates1, include=FALSE, echo=FALSE, cache=FALSE}
+#    table(Match)   #F=34 T=23510
+  #compare values for ST
+    na.exclude(Compare[!Match,c(1,3,5)])
+```
+
+
+```{r TSNmap, include=FALSE, echo=FALSE, cache=FALSE}
     #merge coordinates data with TSN
       a<-data.frame(coordinates(lakesPtAlbers)) #get the coordinates
       a$WBRCHCODE<-lakesPtAlbers$WBRCHCODE
@@ -210,7 +250,7 @@ Results
 * Trophic state for outflow concentrations were done here for MRB1 but not MRB2 as we don't have the flow data (TOT_CFS) for MRB2 lakes (yet).
 * Below is a table showing the number of lakes by trophic state and the number expected change based on the 2020 CMAQ Scenario
 
-```{r table, include=TRUE, echo=FALSE, cache=TRUE}
+```{r table, include=TRUE, echo=FALSE, cache=FALSE}
   TSNtable
 ```
 
@@ -234,4 +274,31 @@ Results
   plotChg('lakeChg')
   #turn warnings back on
       options(warn=0)
+```
+
+Changes By State
+-------------------------
+* Below is a table that shows the changes by state
+* N is the number of lakes in the state (lakes that occur in more than 1 state arbitrarily assigned)
+* Better = number of lakes that improved by 1 trophic state (e.g., moved from Mesotrophic to Oligotrophic)
+* NoChange = number of lakes that did not change trophic state
+* Worse = number of lakes that got worse by 1 trophic state (e.g., moved from Oligotrophic to Mesotrophic)
+
+```{r stateChg, include=TRUE, echo=FALSE, cache=FALSE}
+  a<-aggregate(TSN$outChg,by=list(TSN$ST,TSN$outChg),length)
+  names(a)<-c('ST','Chg','Count')
+  Better<-subset(a[-2],a$Chg==-1)
+    names(Better)<-c('ST','Better')
+  NoChange<-subset(a[-2],a$Chg==0)
+    names(NoChange)<-c('ST','NoChange')
+  Worse<-subset(a[-2],a$Chg==1)
+    names(Worse)<-c('ST','Worse')
+  stateChg<-merge(Better,NoChange,by='ST',all.y=TRUE)
+  stateChg<-merge(stateChg,Worse,by='ST',all.x=TRUE)
+  stateChg[is.na(stateChg)] <- 0 #replace NA with Zeros
+  stateChg$N<-apply(stateChg[2:4],1,sum)
+  stateChg$BetterPercent<-round(100*stateChg$Better/stateChg$N,2)
+  stateChg$WorsePercent<-round(100*stateChg$Worse/stateChg$N,2)
+  stateChg<-stateChg[,c(1,5,2,3,4,6,7)]
+  stateChg
 ```

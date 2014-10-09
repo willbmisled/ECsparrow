@@ -2,11 +2,14 @@ East Coast SPARROW: Lake Trophic State Change Analysis for the CMAQ Scenario
 ========================================================
 Stuff to do 
 -------------------------
-* missing flow (TOT_CFS) data for MRB2
+* ready to go 20141009
+
 
 <!---
 use these command instead of the knit icon if you want the data and work loaded into the R workspace
 First make sure you are in the analysis directory: 
+  getwd()
+  setwd('..')
   setwd('analysis')
   library(knitr)
   knit('trophicStateCMAQ.rmd')
@@ -14,7 +17,7 @@ First make sure you are in the analysis directory:
 Some useful RSQLite commands
       EC<-dbConnect(SQLite(), dbname='../data/EClakes.sqlite')
       dbListTables(EC)                         # List the tables in the database
-      dbListFields(EC, "R2002m1")               # List the columns in a table
+      dbListFields(EC, "R2002m2")               # List the columns in a table
       dbReadTable(EC, "R2002m2")                # Display the data in a table method1
       dbGetQuery(EC, "SELECT * from R2020m1")   # Display the data in a table method2
 -->
@@ -48,12 +51,30 @@ Data Sources
   * **R2002m2**: N predictions based on 2002 conditions for lakes in MRB2
   * **R2020m2**: N predictions based on 2020 conditions for lakes in MRB2
 * Polygon (lakes) and point (lakesPt) locations of the lakes are available in '/data/lakesSpatialData.rda'.  
-* Data Definitions: https://github.com/willbmisled/ECsparrow/blob/master/data/lakesSpatialData.md
+* ECstates boundaries are available in '/data/ECstates.rda'.  
+* Data Definitions for spatial data: https://github.com/willbmisled/ECsparrow/blob/master/data/lakesSpatialData.md
 
 
 
 
 
+
+
+
+
+
+
+
+
+Add States to Lakes TSN table
+-------------------------
+* To assess changes by state we add a field for state name to TSN
+* Anne Hoos assigned the MRB2 lakes to states
+* Lakes also assigned to states in lakesSpatialData.Rmd (df "lakeStates" in lakesSpatialData.rda)
+* State assignments compared and 34 were different
+* The differences appear to be on state borders so are due to slight differences in line work
+* Several were viewed in ArcGIS confirming they were on the state borders.
+* Below is a list of non-matches
 
 
 
@@ -71,13 +92,13 @@ Results
 
 
 ```
-##   Year estimate Oligo  Meso    Eu Hyper Missing Improved worse
-## 1 2002      out  6084  5542  3690  2569   23681       NA    NA
-## 2 2020      out  7719  4721  3161  2284   23681     2734     0
+##   Year Estimate Oligo  Meso    Eu Hyper Missing Improved Worse
+## 1 2002      out  9813 13587 11694  6472       0       NA    NA
+## 2 2020      out 12432 12775 10560  5799       0     5105     6
 ## 3 2002       in  5087 11497 11832 13150       0       NA    NA
 ## 4 2020       in  7984 10739 10941 11902       0     6286     2
-## 5 2002     lake  2764  6154  5957 26691       0       NA    NA
-## 6 2020     lake  4830  5770  5649 25317       0     5122     0
+## 5 2002     lake 24663  7258  4741  4904       0       NA    NA
+## 6 2020     lake 26758  6559  3936  4313       0     4087     5
 ```
 
 
@@ -94,4 +115,41 @@ Results
 
 
 ![plot of chunk lakeChg](figure/lakeChg.png) 
+
+
+Changes By State
+-------------------------
+* Below is a table that shows the changes by state
+* N is the number of lakes in the state (lakes that occur in more than 1 state arbitrarily assigned)
+* Better = number of lakes that improved by 1 trophic state (e.g., moved from Mesotrophic to Oligotrophic)
+* NoChange = number of lakes that did not change trophic state
+* Worse = number of lakes that got worse by 1 trophic state (e.g., moved from Oligotrophic to Mesotrophic)
+
+
+```
+##    ST    N Better NoChange Worse BetterPercent WorsePercent
+## 1  AL 3425    341     3083     1          9.96         0.03
+## 2  CT 1458    278     1180     0         19.07         0.00
+## 3  DC    1      0        1     0          0.00         0.00
+## 4  DE  187      1      186     0          0.53         0.00
+## 5  FL 1426    126     1300     0          8.84         0.00
+## 6  GA 7550    691     6857     2          9.15         0.03
+## 7  KY   28      1       27     0          3.57         0.00
+## 8  LA   75      1       74     0          1.33         0.00
+## 9  MA 1867    368     1499     0         19.71         0.00
+## 10 MD  603     33      570     0          5.47         0.00
+## 11 ME 3126    152     2974     0          4.86         0.00
+## 12 MS 1416    120     1293     3          8.47         0.21
+## 13 NC 4800    506     4294     0         10.54         0.00
+## 14 NH 1157    162      995     0         14.00         0.00
+## 15 NJ 1432    220     1212     0         15.36         0.00
+## 16 NY 2958    602     2356     0         20.35         0.00
+## 17 PA 2009    408     1601     0         20.31         0.00
+## 18 RI  368     54      314     0         14.67         0.00
+## 19 SC 3225    330     2895     0         10.23         0.00
+## 20 TN  393     50      343     0         12.72         0.00
+## 21 VA 3446    514     2932     0         14.92         0.00
+## 22 VT  486    115      371     0         23.66         0.00
+## 23 WV   87     26       61     0         29.89         0.00
+```
 
