@@ -2,7 +2,7 @@ East Coast SPARROW: Compare Methods to Aggregate Loads to Lakes
 ========================================================
 Stuff to do 
 -------------------------
-* fix and rerun ECcompareSQL.rmd
+
 * load data
 * estimate loads
   * inflow

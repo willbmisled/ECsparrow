@@ -2,11 +2,11 @@ East Coast Sparrow Model Compare Methods to Aggregate Loads to Lakes
 ========================================================
 Data
 -------------------------
-* East Coast Sparrow data received from Anne Hoos on September 23 2014 as 4 sas files (forBryan_MRB2_Nitrogen_2002vs2020.zip) and saved to C:\Bryan\EPA\Data\Sparrow\EastCoast\Predictions20140923
-  * mrb2_massbalancereservoirs_2002.sas7bdat
-  * mrb2_massbalancereservoirs_2020.sas7bdat
-  * mrb2_predict_tn_2002.sas7bdat
-  * mrb2_predict_tn_2020.sas7bdat
+* East Coast Sparrow data for MRB1 received from Anne Hoos on September 29 2014 as 2 sas files (Corrected_predictandmassbal_tn_2002_mrb1_excludeincdecay_noatmsec.zip) and saved to C:\Bryan\EPA\Data\Sparrow\EastCoast\Predictions20140929
+* These differ from other versions in that they include the non-decayed estimates of incremental load.  SPARROW usually outputs the decayed incremental loads.
+* SAS datasets included are:
+  * predict_tn_2002_mrb1_exc_incdeca.sas7bdat: loads by flowline
+  * mrb1_massbal_2002_exc_incdeca.sas7bdat: flowline loads aggregated to lakes (defined by gridcode)
 * SAS datasets opened in SAS and exported to Access
 * These data were added to a new access database (C:\Bryan\EPA\Data\Sparrow\EastCoast\Predictions20140923\EC2014.mdb) and the following tables were added as linked tables
   * MRB1_NHDWaterbody (WaterbodyDatabse.mdb): the MRB1 NHDplus waterbodies showing the COMIDs and Reachcodes.

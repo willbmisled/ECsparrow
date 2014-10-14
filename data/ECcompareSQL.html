@@ -147,13 +147,13 @@ hr {
 <h2>Stuff to do </h2>
 
 <ul>
-<li>ready to go 20141006</li>
-<li>Verify that N2002 reachcode_comb is WBRCHCDE</li>
+<li>ready to go 20141014</li>
 <li>R2002 does not have a field for incremental load.  Need to verify if it is included in the input load so I can compare my method for calculating total lake concentrations.</li>
 </ul>
 
 <!---
 use these command instead of the knit icon if you want the data and work loaded into the R workspace
+  getwd()
   setwd('data')
   library(knitr)
   knit('ECcompareSQL.rmd')
@@ -161,7 +161,7 @@ use these command instead of the knit icon if you want the data and work loaded 
 Some useful RSQLite commands
       EC<-dbConnect(SQLite(), dbname='ECcompare.sqlite')
       dbListTables(EC)                         # List the tables in the database
-      dbListFields(EC, "reachcodes")               # List the columns in a table
+      dbListFields(EC, "R2002")               # List the columns in a table
       dbReadTable(EC, "N2002")                # Display the data in a table method1
       dbGetQuery(EC, "SELECT * from flowlines")   # Display the data in a table method2
 -->
@@ -169,10 +169,10 @@ Some useful RSQLite commands
 <h2>Create ECcompare.sqlite in the &ldquo;./data/&rdquo; subdirectory and add the following tables</h2>
 
 <ul>
-<li><strong>Table N2002</strong>: Nitrogen predictions for flowlines in MRB1; Incremental loads reported without decay. Original data received from Anne Hoos on September 29 2014 (Sasdataset: &ldquo;predict_tn_2002_mrb1_exc_incdeca.sas7bdat&rdquo;&ldquo; in &quot;Corrected_predictandmassbal_tn_2002_mrb1_excludeincdecay_noatmsec.zip&rdquo;) and saved to C:\Bryan\EPA\Data\Sparrow\EastCoast\Predictions20140923. File read directly into R and saved as a table in ECcompare.sqlite. NOTE:Only a small subset of the available data fields are kept to reduce the size of the database (see ECcompareDataDefinitions.xls).</li>
-<li><strong>Table R2002</strong>: Nitrogen predictions MRB1 (N2002) aggregated to lakes by reachcode (WBRchCd). Original data received from Anne Hoos on September 29 2014 (Sasdataset: &ldquo;mrb1_massbalancereservoirs_2002.sas7bdat&rdquo; in “Corrected_predictandmassbal_tn_2002_mrb1_excludeincdecay_noatmsec.zip”) and saved to C:\Bryan\EPA\Data\Sparrow\EastCoast\Predictions20140923. File read directly into R and saved as a table in ECcompare.sqlite. NOTE:Only a small subset of the available data fields are kept to reduce the size of the database (see ECcompareDataDefinitions.xls). </li>
+<li><strong>Table N2002</strong>: Nitrogen predictions for flowlines in MRB1; Incremental loads reported without decay. Original data received from Anne Hoos on September 29 2014 (Sasdataset: &ldquo;predict_tn_2002_mrb1_exc_incdeca.sas7bdat&rdquo;&ldquo; in &quot;Corrected_predictandmassbal_tn_2002_mrb1_excludeincdecay_noatmsec.zip&rdquo;) and saved to C:\Bryan\EPA\Data\Sparrow\EastCoast\Predictions20140929. File read directly into R and saved as a table in ECcompare.sqlite. NOTE:Only a small subset of the available data fields are kept to reduce the size of the database (see ECcompareDataDefinitions.xls).</li>
+<li><strong>Table R2002</strong>: Nitrogen predictions MRB1 (N2002) aggregated to lakes by reachcode (WBRCHCODE). Original data received from Anne Hoos on September 29 2014 (Sasdataset: &ldquo;mrb1_massbalancereservoirs_2002.sas7bdat&rdquo; in “Corrected_predictandmassbal_tn_2002_mrb1_excludeincdecay_noatmsec.zip”) and saved to C:\Bryan\EPA\Data\Sparrow\EastCoast\Predictions20140929. File read directly into R and saved as a table in ECcompare.sqlite. NOTE:Only a small subset of the available data fields are kept to reduce the size of the database (see ECcompareDataDefinitions.xls). </li>
 <li><strong>Table &ldquo;flowlines</strong>&rdquo;: Links the flowline COMIDs to the MRB1 WBIDs and shows whether the flowline is an input or output to the lake or an internal reach. Imported from tblJoinFlowline_WBID_InOut (MRB1.mdb)</li>
-<li><strong>Table &ldquo;reachcodes&rdquo;</strong> links the MRB1 WaterbodyIDs (WBID) to the NHDplus waterbody Reachcodes (WBRchCd). Created (code below) from: MRB1_NHDWaterbody (WaterbodyDatabase.mdb: the MRB1 NHDplus waterbodies showing the COMIDs and Reachcodes) and tblJoinCOMID_WBID (WaterbodyDatabase.mdb: a table to match waterbody COMIDs to the Lake WBIDs). The reachcodes are used to compare values to R2002.</li>
+<li><strong>Table &ldquo;reachcodes&rdquo;</strong> links the MRB1 WaterbodyIDs (WBID) to the NHDplus waterbody Reachcodes (WBRCHCODE). Created (code below) from: MRB1_NHDWaterbody (WaterbodyDatabase.mdb: the MRB1 NHDplus waterbodies showing the COMIDs and Reachcodes) and tblJoinCOMID_WBID (WaterbodyDatabase.mdb: a table to match waterbody COMIDs to the Lake WBIDs). The reachcodes are used to compare values to R2002.</li>
 <li>Link to this document: <a href="https://github.com/willbmisled/ECsparrow/blob/master/data/ECcompareSQL.md">https://github.com/willbmisled/ECsparrow/blob/master/data/ECcompareSQL.md</a></li>
 </ul>
 
@@ -197,7 +197,7 @@ Some useful RSQLite commands
 <li>36306 observations</li>
 <li>36274 unique WBIDs </li>
 <li>28008 unique Reachcodes</li>
-<li>8293 COMIDs with missing reachcodes; most of these are not really lakes but there is one (a subWaterbody of lake Champlain; WBID=22302965) with a missing reachcode.</li>
+<li>0 COMIDs with missing reachcodes; most of these are not really lakes but there is one (a subWaterbody of lake Champlain; WBID=22302965) with a missing reachcode.</li>
 <li>56 observations with multiple reachcodes representing 24 WBID lakes</li>
 </ul></li>
 <li>Below is a list of the lakes with multiple reachcodes (reachcodes$Count&gt;1).  These should be removed from the anlaysis.</li>
@@ -275,8 +275,8 @@ Some useful RSQLite commands
 <td>Stream Reach Identifier from NHDplus</td>
 </tr>
 <tr>
-<td><strong>WBRCHCD</strong></td>
-<td>Unique identifier for a reservoir or lake,  from nhdwaterbody dbf file Aug 2011</td>
+<td><strong>reachcode_comb</strong></td>
+<td>This is probably the same as reachcode for the flowline-not to be confused with &ldquo;WBRCHCODE&rdquo; the reachcodes for the waterbodies.</td>
 </tr>
 <tr>
 <td><strong>PLOAD_TOTAL</strong></td>
@@ -300,6 +300,10 @@ Some useful RSQLite commands
 <th><strong>Definition</strong></th>
 </tr>
 </thead><tbody>
+<tr>
+<td><strong>WBRCHCODE</strong></td>
+<td>NHDplus Waterbody Reachcode associated with each COMID</td>
+</tr>
 <tr>
 <td><strong>TN_CONC_inload</strong></td>
 <td>Tributary inflow Nitrogen Concentration, mg/L  -  this is value reported in USGS DS 820 as &ldquo;Concentration of tributary inflow to receiving water&rdquo;, calculated as  (TN_LOAD_inflow) / (TOT_CFS * 28.32 * 1/1000000 * 86400 * 365 ).   Would have preferred to use sum of tributary inflow MAFLOWU as the demonimator but this was difficult to compute;  thus it&#39;s a slightly mixed calculation</td>
@@ -409,12 +413,12 @@ Some useful RSQLite commands
 <td>NHDplus Unique Waterbody ID-sometimes there are multiple COMID for a single WBID</td>
 </tr>
 <tr>
-<td><strong>WBRCHCD</strong></td>
-<td>NHDplus Waterbody Reachcode associated with each COMID; Note this was converted to numeric so leading Zero was lost.  Leading Zero can be added back or used as numeric.</td>
+<td><strong>WBRCHCODE</strong></td>
+<td>NHDplus Waterbody Reachcode associated with each COMID; Note this was converted to numeric so leading Zero was lost.  Leading Zero added back with a paste command.</td>
 </tr>
 <tr>
 <td><strong>Count</strong></td>
-<td>Number of WBRchCds associated with the WBID-for analysis keep Count==1</td>
+<td>Number of WBRCHCODEs associated with the WBID-for analysis keep Count==1</td>
 </tr>
 </tbody></table>
 
